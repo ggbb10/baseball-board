@@ -1,0 +1,2469 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173e31">
+  <meta name="description" content="用棒球戰術板移動球員、繪製路線，逐步推演守備情境。">
+  <title>棒球戰術板 · Diamond Desk</title>
+  <style>:root {
+  color-scheme: light;
+  --paper: #f7f8f4;
+  --surface: #ffffff;
+  --forest: #173e31;
+  --green: #235541;
+  --ink: #202f27;
+  --muted: #657268;
+  --line: #dce1d9;
+  --soft: #eff3ed;
+  --clay: #ac532b;
+  --warm: #f8eadd;
+  --sans: "Inter", "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", system-ui, sans-serif;
+  --display: "Barlow Condensed", "Bahnschrift SemiCondensed", "Arial Narrow", var(--sans);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { min-width: 300px; scroll-behavior: smooth; }
+#presets-heading { scroll-margin-top: 16px; }
+#important-concepts { scroll-margin-top: 16px; }
+.concept-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 10px; }
+.concept-card { display: grid; align-content: center; gap: 4px; text-align: left; color: var(--ink); border: 1px solid var(--line); border-left: 3px solid var(--green); border-radius: 8px; padding: 12px 15px; background: var(--surface); }
+.concept-card:hover { border-color: var(--green); background: var(--soft); }
+.concept-title { font-size: 15px; overflow-wrap: anywhere; }
+.concept-details, .concept-empty { color: var(--muted); font-size: 13px; }
+.concept-empty { padding: 10px 0; }
+@media (max-width: 610px) {
+  #tokens > g > circle, #tokens > g > text, #tokens > g > g, #tokens > g[data-player="BR"] > path { scale: 1.3; transform-origin: 0 0; }
+  #tokens > g > circle[fill="transparent"] { scale: 1.7; }
+}
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { color: inherit; cursor: pointer; }
+button:disabled { cursor: default; opacity: .4; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 3px solid #bd6638; outline-offset: 3px; }
+h1, h2, h3, p { margin: 0; }
+button { border: 0; background: transparent; }
+a { color: inherit; text-decoration: none; }
+.hidden, [hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; clip-path: inset(50%); }
+.icon { width: 18px; height: 18px; display: inline-block; flex: 0 0 auto; vertical-align: middle; }
+
+.topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.nav-shell, .container { width: min(100% - clamp(36px, 6.4vw, 100px), 1520px); margin-inline: auto; }
+.nav-shell { min-height: 68px; display: flex; align-items: center; gap: clamp(24px, 4.4vw, 74px); }
+.brand { display: inline-flex; align-items: center; gap: 11px; flex: 0 0 auto; padding: 0; color: var(--forest); }
+.brand > svg { width: 34px; height: 34px; flex: none; }
+.brand > span { font-family: var(--display); font-size: 20px; font-weight: 850; letter-spacing: .035em; line-height: 1; }
+.main-nav { display: flex; align-self: stretch; align-items: stretch; gap: 24px; }
+.nav-item, .help-link { display: inline-flex; align-items: center; justify-content: center; gap: 7px; color: var(--muted); font-weight: 650; white-space: nowrap; }
+.nav-item { position: relative; min-height: 44px; padding: 2px 3px 0; font-size: 14px; }
+.nav-item.active, .nav-item[aria-current="page"] { color: var(--forest); }
+.nav-item.active::after, .nav-item[aria-current="page"]::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--green); border-radius: 3px 3px 0 0; }
+.help-link { margin-left: auto; font-size: 13px; padding: 8px 0 8px 8px; }
+.nav-item:hover, .help-link:hover { color: var(--forest); }
+.container { padding-bottom: 50px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding: 29px 0 24px; }
+.page-title h1 { font-size: clamp(29px, 2.65vw, 41px); font-weight: 800; letter-spacing: -.048em; line-height: 1.25; color: var(--forest); }
+.page-title p, .section-heading p { color: var(--muted); font-size: 14px; margin-top: 5px; }
+.eyebrow { display: flex; align-items: center; gap: 7px; color: var(--clay); font: 750 11px/1.3 var(--display); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 6px; }
+.page-actions, .tools-group { display: inline-flex; align-items: center; gap: 8px; }
+.page-actions { flex: 0 0 auto; }
+.btn, .play-btn, .text-btn, .icon-btn, .tool, .base-choice { display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; font-weight: 680; line-height: 1.2; }
+.btn { min-height: 39px; border-radius: 7px; border: 1px solid var(--line); padding: 8px 15px; }
+.primary, .play-btn { background: var(--forest); border-color: var(--forest); color: #fff; }
+.secondary { background: #fff; color: var(--ink); }
+.btn:hover:not(:disabled), .play-btn:hover:not(:disabled) { filter: brightness(.95); }
+.secondary:hover:not(:disabled) { border-color: #b8c6b9; }
+
+.workspace-grid { display: grid; grid-template-columns: minmax(0, 2.12fr) minmax(300px, 1fr); gap: 19px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; min-width: 0; box-shadow: 0 2px 5px #18382705; }
+.panel-head { min-height: 51px; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 9px; border-bottom: 1px solid var(--line); }
+.head-title { display: inline-flex; align-items: center; gap: 9px; min-width: 0; }
+.panel-head h2, .head-title h2 { font-size: 16px; line-height: 1.3; font-weight: 760; letter-spacing: -.025em; }
+.icon-box { display: inline-grid; place-items: center; color: var(--green); }
+.icon-box .icon { width: 19px; height: 19px; }
+.pill { font-size: 11px; color: var(--green); background: #eaf2e7; border: 1px solid #d6e5d5; border-radius: 100px; padding: 2px 7px; line-height: 1.4; font-weight: 700; white-space: nowrap; }
+.head-meta { color: var(--muted); font-size: 11px; font-weight: 650; font-variant-numeric: tabular-nums; min-width: 0; }
+.field-panel { overflow: hidden; }
+.field-wrap { position: relative; isolation: isolate; width: 100%; aspect-ratio: 1000/620; overflow: hidden; background: #173d30; }
+#field { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; touch-action: none; }
+.field-hud, .field-key, .field-tag { position: absolute; pointer-events: none; z-index: 1; font-variant-numeric: tabular-nums; }
+.field-hud { top: 14px; left: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 7px; width: fit-content; max-width: calc(100% - 30px); color: #f6faef; background: #10291ed9; border: 1px solid #d9edcf35; border-radius: 5px; padding: 5px 9px; font-size: 11px; line-height: 1.25; font-weight: 700; }
+.field-key, .field-tag { bottom: 14px; font-size: 11px; line-height: 1.25; font-weight: 650; color: #f0f3e6; }
+.field-key { left: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.field-key > span, .field-tag > span { display: inline-flex; align-items: center; gap: 5px; }
+.field-tag { right: 15px; font-family: var(--display); font-size: 10px; letter-spacing: .1em; color: #c8d9c8; }
+.field-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 14px; min-height: 52px; }
+.tool, .icon-btn { min-height: 33px; border-radius: 5px; padding: 6px 9px; color: var(--muted); border: 1px solid transparent; }
+.tool[aria-pressed="true"], .tool.active { color: var(--green); background: #e8f0e6; border-color: #d5e2d3; }
+.tool:hover:not(:disabled), .icon-btn:hover:not(:disabled), .text-btn:hover:not(:disabled) { color: var(--forest); background: var(--soft); }
+.icon-btn { width: 33px; padding: 6px; }
+.sidebar { display: grid; min-width: 0; gap: 14px; }
+.panel-body { padding: 15px 18px 16px; }
+.control-panel .panel-body { display: grid; gap: 15px; }
+.form-row { display: flex; align-items: flex-start; gap: 14px; min-width: 0; }
+.form-row > .control { flex: 1 1 0; }
+.control { min-width: 0; }
+.field-label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; font-weight: 700; line-height: 1.35; }
+.stepper, .segmented { display: flex; min-height: 33px; border: 1px solid var(--line); background: #fafbf8; border-radius: 6px; align-items: stretch; overflow: hidden; }
+.stepper { align-items: center; justify-content: space-between; }
+.stepper button, .segmented button { flex: 1 1 0; min-width: 0; min-height: 31px; font-size: 12px; font-weight: 700; line-height: 1.15; padding: 3px 5px; color: var(--muted); }
+.stepper button { flex: 0 0 29px; font-size: 16px; padding: 2px; }
+.stepper button .icon { width: 13px; height: 13px; }
+.stepper > span, .stepper > output, .stepper > strong { font-size: 13px; font-weight: 750; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.segmented { gap: 2px; padding: 2px; }
+.segmented button { border: 1px solid transparent; border-radius: 4px; min-height: 27px; }
+.segmented button.active, .segmented button[aria-pressed="true"] { background: #e1ebdf; border-color: #cbdcc8; color: var(--forest); }
+.stepper button:hover:not(:disabled), .segmented button:hover:not(:disabled) { background: #e8efe5; color: var(--forest); }
+.base-options { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 6px; }
+.base-choice { min-height: 32px; padding: 4px 7px; border: 1px solid var(--line); color: var(--muted); border-radius: 5px; white-space: nowrap; }
+.base-choice[aria-pressed="true"], .base-choice.active { color: var(--clay); border-color: #dcaf8d; background: #fcf0e4; }
+.base-choice:hover:not(:disabled) { border-color: #c79f80; }
+.batter-control { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.batter-control label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-weight: 650; font-size: 14px; }
+.batter-control input { accent-color: var(--clay); width: 17px; height: 17px; margin: 0; }
+.batter-control .run-target-label { color: var(--muted); font-size: 13px; }
+#run-target { min-height: 33px; border: 1px solid var(--line); border-radius: 5px; background-color: var(--surface); color: var(--ink); padding: 3px 7px; }
+.run-hint { flex-basis: 100%; font-size: 12px; color: var(--muted); }
+.base-diamond { display: inline-block; width: 8px; height: 8px; transform: rotate(45deg); border: 1.25px solid currentColor; }
+.base-choice[aria-pressed="true"] .base-diamond { background: #c56b3c; }
+.text-btn { color: var(--green); font-size: 12px; border-radius: 4px; padding: 5px 4px; gap: 4px; }
+.text-btn .icon { width: 15px; height: 15px; }
+.timeline-panel .panel-body { padding-top: 11px; }
+.step-list { display: grid; gap: 4px; max-height: 240px; overflow: auto; scrollbar-width: thin; }
+.step-row { width: 100%; min-width: 0; display: flex; gap: 10px; align-items: center; text-align: start; padding: 7px 9px; border: 1px solid transparent; border-radius: 6px; min-height: 38px; }
+.step-row.active, .step-row[aria-current="step"] { background: #edf3e9; border-color: #d6e2d1; }
+.step-row:hover:not(:disabled) { background: #f0f4ec; }
+.step-num { width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 50%; display: inline-grid; place-items: center; background: var(--surface); color: var(--muted); flex: none; font: 750 12px/1 var(--display); font-variant-numeric: tabular-nums; }
+.step-row.active .step-num { background: var(--green); color: #fff; border-color: var(--green); }
+.step-copy { display: flex; flex: 1; flex-direction: column; min-width: 0; font-size: 13px; }
+.step-copy > strong, .step-copy > b { color: var(--ink); font-weight: 700; }
+.step-copy small, .step-copy > em { color: var(--muted); font-size: 11px; font-style: normal; }
+.step-row > .icon { width: 14px; height: 14px; color: var(--muted); }
+.play-btn { width: 100%; min-height: 38px; margin-top: 12px; border-radius: 6px; }
+.play-btn .icon { width: 16px; height: 16px; }
+
+.section-heading { display: flex; align-items: baseline; gap: 13px; margin: 26px 0 12px; }
+.section-heading h2 { font-size: clamp(19px, 1.6vw, 24px); color: var(--forest); line-height: 1.3; font-weight: 780; letter-spacing: -.03em; }
+.section-heading p { font-size: 13px; margin: 0; }
+.preset-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+.preset-card { display: flex; align-items: center; text-align: start; gap: 12px; width: 100%; min-width: 0; background: var(--surface); padding: 10px; color: var(--ink); border: 1px solid var(--line); border-radius: 9px; transition: border-color .15s, box-shadow .15s; }
+.preset-card:hover, .preset-card:focus-within { border-color: #a0b59e; box-shadow: 0 3px 9px #1838270d; }
+.preset-art { display: grid; place-items: center; flex: 0 0 63px; width: 63px; aspect-ratio: 1.22; overflow: hidden; border-radius: 5px; background: #e9efe2; color: var(--green); }
+.preset-art svg { width: 100%; height: 100%; display: block; }
+.preset-copy { min-width: 0; }
+.preset-copy h3 { font-size: 14px; line-height: 1.35; font-weight: 740; }
+.preset-copy p { font-size: 11.5px; line-height: 1.4; margin-top: 3px; color: var(--muted); }
+.preset-code { font: 750 10px/1.2 var(--display); color: var(--clay); letter-spacing: .08em; }
+
+.modal { color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 13px; box-shadow: 0 20px 80px #142e2533; padding: 0; width: min(94vw, 500px); max-height: 85dvh; }
+.modal::backdrop { background: #182b225e; }
+.modal-head, .modal-foot, .saved-row { display: flex; align-items: center; gap: 10px; }
+.modal-head { justify-content: space-between; border-bottom: 1px solid var(--line); padding: 15px 20px; }
+.modal-head h2 { font-size: 18px; color: var(--forest); }
+.modal-body { padding: 20px; }
+.modal-body p + p { margin-top: 9px; }
+.modal-body label { display: block; margin-bottom: 5px; }
+.modal-foot { justify-content: flex-end; padding: 12px 20px; background: #f7f9f4; border-top: 1px solid var(--line); }
+.input { width: 100%; min-height: 39px; padding: 7px 11px; border: 1px solid #cbd5cb; background: white; border-radius: 5px; color: var(--ink); }
+.saved-list { display: grid; gap: 9px; }
+.saved-row { padding: 10px; border: 1px solid var(--line); border-radius: 7px; }
+.saved-row > :first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.toast { position: fixed; left: 50%; bottom: max(22px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 20; width: max-content; max-width: calc(100vw - 32px); color: #fff; border: 1px solid #567962; background: var(--forest); box-shadow: 0 5px 24px #12211b29; padding: 10px 17px; border-radius: 8px; font-size: 13px; text-align: center; }
+.toast:empty { display: none; }
+
+.field-panel .panel-head { padding-block: 8px; }
+.field-panel .head-title { flex: 1; }
+.field-panel .head-title h2, .field-panel .icon-box { flex: none; }
+.field-panel .pill, .step-copy > strong, .step-copy > small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.field-hud .mini-inning { color: #fff4d6; }
+.hud-divider { display: block; width: 1px; height: 11px; background: #d9e7cf59; }
+.key-dot { display: inline-block; position: relative; width: 9px; height: 9px; border-radius: 50%; flex: none; border: 1px solid #f1f2db94; }
+.key-dot.fielder { background: #e8ebcf; }
+.key-dot.runner { background: #c56b43; }
+.key-dot.batter { background: #b76a36; border-radius: 0; clip-path: polygon(0 0, 100% 0, 100% 58%, 50% 100%, 0 58%); }
+.key-dot.ball { background: #fff6e7; border-color: #f1e4d3; overflow: hidden; }
+.key-dot.ball::before, .key-dot.ball::after { content: ""; position: absolute; top: -1px; width: 6px; height: 9px; border: 1px dashed #b96247; border-radius: 50%; }
+.key-dot.ball::before { left: -5px; }
+.key-dot.ball::after { right: -5px; }
+.field-key { background: #123226b8; padding: 5px 8px; border: 1px solid #d9edcf22; border-radius: 4px; }
+.field-play { position: absolute; right: 12px; bottom: 10px; z-index: 2; display: inline-flex; align-items: center; gap: 5px; border-radius: 5px; padding: 5px 9px; font-weight: 650; font-size: 13px; color: #fff9e7; background: #16392e; border: 1px solid #c8dfbd77; }
+.field-play .icon { width: 14px; height: 14px; }
+.drill-step-hud { position: absolute; top: 12px; right: 12px; max-width: 52%; padding: 4px 8px; border-radius: 5px; background: #16392ee8; color: #fffcf0; font-size: 12px; line-height: 1.4; pointer-events: none; }
+@media (max-width: 610px) { .drill-step-hud { top: 6px; right: 5px; font-size: 10px; } }
+.history-tools { padding-left: 9px; border-left: 1px solid var(--line); }
+.step-entry { position: relative; min-width: 0; }
+.step-entry .step-row { padding-right: 39px; }
+.step-edit { position: absolute; top: 50%; right: 5px; transform: translateY(-50%); display: inline-grid; place-items: center; width: 29px; height: 29px; padding: 5px; color: #697b6f; border-radius: 4px; }
+.step-edit:hover:not(:disabled) { background: #dae6d5; color: var(--forest); }
+.step-edit .icon { width: 14px; height: 14px; }
+.step-entry:focus-within { outline: 2px solid var(--green); outline-offset: -2px; border-radius: 6px; }
+.step-entry:focus-within .step-edit:focus-visible { outline-offset: 0; }
+.add-step { width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px; border: 1px dashed #b9caba; border-radius: 5px; background: #fbfcf9; color: var(--green); min-height: 31px; font-weight: 650; font-size: 12px; margin-top: 7px; }
+.add-step .icon { width: 14px; height: 14px; }
+.add-step:hover:not(:disabled) { background: var(--soft); border-color: var(--green); }
+.play-btn:disabled { opacity: 1; color: #546b59; background: #e5ebe2; border: 1px solid #d6e0d2; }
+.timeline-tip { color: var(--muted); font-size: 11px; line-height: 1.5; margin-top: 7px; text-align: center; }
+.timeline-tip:empty { display: none; }
+.end-playback { width: 100%; margin-top: 5px; }
+.modal-body { overflow-wrap: anywhere; }
+.modal-body label, .modal-body strong { font-weight: 690; }
+.modal-body label { font-size: 13px; }
+.modal-body p { font-size: 14px; }
+.modal-body strong { color: var(--forest); }
+.modal-body [role="alert"]:not([hidden]) { border: 1px solid #e3c0ac; background: #fbf1e9; border-radius: 5px; padding: 7px 10px; margin-bottom: 12px; }
+.saved-row small { color: var(--muted); font-size: 11px; }
+.saved-row .btn, .saved-row .text-btn { flex-shrink: 0; }
+.danger, .saved-row .text-btn { color: #a6482e; }
+.modal-foot .danger { margin-right: auto; }
+body.field-expanded { overflow: hidden; }
+.field-panel.is-expanded { position: fixed; z-index: 15; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border: 0; border-radius: 0; }
+.field-panel.is-expanded .field-wrap { display: grid; place-items: center; height: 100%; aspect-ratio: auto; container-type: size; }
+.field-panel.is-expanded #field { width: min(100cqw, 161.2903226cqh); height: auto; max-height: 100%; aspect-ratio: 1000/620; }
+.field-panel.is-expanded .field-tools { padding-bottom: max(9px, env(safe-area-inset-bottom)); }
+
+@media (min-width: 1550px) {
+  .workspace-grid { grid-template-columns: minmax(0, 2.2fr) minmax(360px, 1fr); }
+  .panel-body { padding: 20px 23px; }
+  .panel-head { padding-inline: 23px; min-height: 57px; }
+  .step-row { min-height: 45px; }
+}
+@media (max-width: 1100px) {
+  .workspace-grid { grid-template-columns: minmax(0, 1.85fr) minmax(275px, 1fr); gap: 14px; }
+  .panel-head, .panel-body { padding-inline: 14px; }
+  .preset-art { flex-basis: 46px; width: 46px; }
+  .preset-card { gap: 8px; }
+  .tool { padding-inline: 7px; }
+  .tools-group { gap: 4px; }
+}
+@media (max-width: 850px) {
+  .workspace-grid { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  .preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .preset-art { flex-basis: 60px; width: 60px; }
+}
+@media (max-width: 610px) {
+  .nav-shell, .container { width: calc(100% - 28px); }
+  .nav-shell { min-height: 54px; gap: 16px; flex-wrap: wrap; }
+  .brand { gap: 6px; }
+  .brand > svg { width: 27px; height: 27px; }
+  .brand > span { font-size: 16px; }
+  .main-nav { gap: 10px; }
+  .nav-item { font-size: 12px; padding-inline: 1px; gap: 3px; }
+  .nav-item .icon { width: 14px; height: 14px; }
+  .help-link { padding-inline: 0; font-size: 12px; gap: 3px; }
+  .help-link .icon { width: 15px; height: 15px; }
+  .page-head { align-items: flex-start; flex-direction: column; gap: 12px; padding: 20px 0 15px; }
+  .page-title p { font-size: 13px; }
+  .page-actions .btn { min-height: 36px; padding-inline: 12px; }
+  .sidebar { grid-template-columns: 1fr; }
+  .panel { border-radius: 9px; }
+  .panel-head { min-height: 45px; padding-block: 10px; }
+  .field-hud { top: 7px; left: 7px; font-size: 9px; padding: 4px 6px; }
+  .field-key { left: 7px; }
+  .field-key, .field-tag { bottom: 6px; font-size: 8px; }
+  .field-tag { right: 7px; }
+  .field-tools { padding: 6px; flex-wrap: wrap; min-height: 42px; }
+  .field-tools .tools-group { gap: 2px; }
+  .tool { padding: 5px; font-size: 11px; gap: 3px; }
+  .icon-btn { width: 29px; }
+  .tool .icon, .icon-btn .icon { width: 15px; height: 15px; }
+  .section-heading { flex-wrap: wrap; gap: 3px 10px; margin: 19px 0 9px; }
+  .preset-grid { gap: 8px; }
+  .preset-card { padding: 7px; gap: 7px; }
+  .preset-art { flex-basis: 38px; width: 38px; }
+  .preset-copy h3 { font-size: 13px; }
+  .preset-copy p { font-size: 11px; }
+  .container { padding-bottom: 30px; }
+}
+@media (max-width: 960px) {
+  .nav-shell { display: grid; grid-template-columns: 1fr auto; gap: 0 10px; padding-top: 10px; }
+  .brand { grid-column: 1; grid-row: 1; }
+  .help-link { grid-column: 2; grid-row: 1; }
+  .main-nav { grid-column: 1/-1; grid-row: 2; justify-content: space-between; gap: 5px; }
+  .nav-item { min-height: 36px; }
+}
+@media (max-width: 475px) {
+  .main-nav .icon { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: .01ms !important; }
+}
+
+  #practice-library { scroll-margin-top: 16px; min-width: 0; }
+.practice-picker { overflow: hidden; }
+.practice-groups { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; padding: 12px 15px; border-bottom: 1px solid var(--line); background: #f1f4ef; }
+.practice-group { display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 43px; padding: 5px 8px; font-size: 14px; font-weight: 720; color: var(--muted); border: 1px solid transparent; border-radius: 6px; }
+.practice-group:hover { border-color: #c0cdbe; }
+.practice-group[aria-pressed="true"] { border-color: #aec1aa; background: var(--surface); color: var(--forest); box-shadow: 0 2px 4px #1838270a; }
+.practice-diamond { display: inline-block; width: 31px; height: 25px; flex: none; color: var(--green); }
+.practice-group-content { padding: 15px 18px 18px; }
+.practice-group-title { color: var(--forest); font-size: 17px; line-height: 1.4; }
+.practice-group-rules { color: var(--muted); margin-top: 2px; font-size: 14px; }
+.practice-cases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 13px; }
+.practice-case { text-align: start; display: flex; flex-direction: column; gap: 6px; min-width: 0; border: 1px solid var(--line); border-radius: 7px; padding: 12px 13px; background: #fff; line-height: 1.45; overflow-wrap: anywhere; }
+.practice-case:hover:not(:disabled), .practice-case[aria-pressed="true"] { background: #f4f8f0; border-color: #a3b9a2; }
+.practice-case[aria-pressed="true"] { box-shadow: inset 3px 0 #3d684f; }
+.practice-case-top { display: flex; align-items: baseline; flex-wrap: wrap; justify-content: space-between; width: 100%; gap: 2px 7px; }
+.practice-case-top strong { font-size: 15px; color: var(--forest); }
+.practice-branches { font-size: 12px; color: var(--clay); font-weight: 680; white-space: nowrap; }
+.practice-case-note { font-size: 13px; color: #526356; }
+#practice-active { min-width: 0; }
+#practice-active .practice-diamond { width: 24px; height: 22px; }
+.practice-active-body { overflow-wrap: anywhere; }
+.practice-active-context { color: var(--muted); font-size: 13px; }
+.practice-active-name { color: var(--forest); font-size: 17px; margin: 3px 0 8px; line-height: 1.4; }
+.practice-teaching { font-size: 14px; line-height: 1.6; }
+.practice-variation, .practice-only-variant { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 9px; }
+.practice-only-variant { color: var(--green); font-size: 13px; font-weight: 650; }
+.practice-select { width: 100%; min-height: 38px; padding: 6px 34px 6px 9px; appearance: none; border: 1px solid #cbd5ca; border-radius: 5px; color: var(--ink); font-size: 14px; background: #fafbf8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill='none' stroke='%23375042' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='m3 5 4 4 4-4'/%3E%3C/svg%3E") no-repeat right 10px center / 14px 14px; }
+@media (max-width: 1000px) {
+  .practice-cases { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .practice-groups { gap: 3px; padding-inline: 9px; }
+  .practice-group { gap: 2px; padding-inline: 4px; }
+}
+@media (max-width: 760px) {
+  .practice-groups { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .practice-groups { padding: 7px; }
+  .practice-group { padding: 4px; font-size: 13px; }
+  .practice-group .practice-diamond { width: 24px; height: 20px; }
+  .practice-group-content { padding: 12px; }
+  .practice-cases { grid-template-columns: minmax(0, 1fr); gap: 7px; }
+  .practice-case { padding: 10px; gap: 3px; }
+}
+@media (max-width: 365px) {
+  .practice-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="nav-shell">
+    <a href="#workspace" class="brand" aria-label="Diamond Desk 戰術工作區">
+      <svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="1" y="1" width="38" height="38" rx="10" fill="#204e3c"/><path d="M5.8 17Q9 7 20 6.3Q31 7 34.2 17L20 32.6Z" stroke="#eff8de" stroke-width="1.65"/><path d="m20 16.1 7.2 7.2-7.2 7.2-7.2-7.2Z" stroke="#eff8de" stroke-width="1.5"/><circle cx="20" cy="22.8" r="1.7" fill="#e5b984"/></svg>
+      <span>Diamond Desk</span>
+    </a>
+    <nav class="main-nav" aria-label="主選單">
+      <a class="nav-item active" href="#workspace" aria-current="page"><i data-icon="board"></i>戰術工作區</a>
+      <a class="nav-item" href="#practice-library"><i data-icon="route"></i>跑壘練習</a>
+      <a class="nav-item" href="#important-concepts">重要跑壘觀念</a>
+      <a class="nav-item" href="#presets-heading"><i data-icon="templates"></i>戰術範本</a>
+      <button class="nav-item" id="library"><i data-icon="folder"></i>我的戰術</button>
+    </nav>
+    <button class="help-link" id="help"><i data-icon="help"></i>操作指南</button>
+  </div>
+</header>
+<main id="workspace" class="container">
+  <section class="page-head">
+    <div class="page-title"><h1>棒球戰術板</h1><p>調整球員站位、畫出傳球路線，逐步推演場上的每一個決定。</p></div>
+    <div class="page-actions">
+      <button class="btn secondary" id="new-play"><i data-icon="plus"></i>新增戰術</button>
+      <button class="btn primary" id="save"><i data-icon="save"></i>儲存戰術</button>
+    </div>
+  </section>
+  <div class="workspace-grid">
+    <article class="panel field-panel" id="field-panel" aria-labelledby="field-heading">
+      <header class="panel-head">
+        <div class="head-title"><span class="icon-box"><i data-icon="diamond"></i></span><h2 id="field-heading">球場視圖</h2><span class="pill" id="play-title"></span></div>
+        <button class="icon-btn" id="expand" title="放大球場" aria-label="放大球場" aria-pressed="false"><i data-icon="expand"></i></button>
+      </header>
+      <div class="field-wrap">
+        <svg id="field" viewBox="0 0 1000 620" aria-label="互動棒球場，選取球員後可用方向鍵調整站位" role="group">
+          <defs>
+  <path id="park-fence" d="M 158 214 Q 245 102 389 60 L 450 43 Q 500 30 550 43 L 611 60 Q 755 102 842 214 L 887 282 L 593 564 Q 548 603 500 604 Q 452 603 407 564 L 113 282 Z"/>
+  <clipPath id="park-field-clip"><use href="#park-fence"/></clipPath>
+  <pattern id="park-grid" width="28" height="28" patternUnits="userSpaceOnUse">
+    <path d="M 28 0 H 0 V 28" fill="none" stroke="#acc3a7" stroke-width=".75" opacity=".17"/>
+    <circle cx=".6" cy=".6" r=".85" fill="#b1c2a1" opacity=".3"/>
+  </pattern>
+  <pattern id="park-grass" width="116" height="116" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
+    <rect width="116" height="116" fill="#376e51"/>
+    <rect width="58" height="116" fill="#447a57"/>
+    <path d="M 1 0 V 116 M 57 0 V 116" stroke="#699467" stroke-width="1.2" opacity=".4"/>
+  </pattern>
+  <pattern id="park-grain" width="9" height="11" patternUnits="userSpaceOnUse">
+    <path d="M 1 2 l .7 -.8 M 5 8 l 1.2 -.6" stroke="white" opacity=".1" fill="none" stroke-width=".7"/>
+    <path d="M 7 4 l .7 -.9 M 2 9 l 1 -.4" stroke="#132c1c" opacity=".16" fill="none" stroke-width=".7"/>
+  </pattern>
+  <pattern id="park-clay-grain" width="10" height="9" patternUnits="userSpaceOnUse">
+    <circle cx="1" cy="2" r=".55" fill="#753f2f" opacity=".34"/>
+    <circle cx="5" cy="6" r=".55" fill="#f5ce97" opacity=".45"/>
+    <circle cx="8" cy="3.5" r=".45" fill="#7c4935" opacity=".35"/>
+  </pattern>
+  <path id="park-infield" d="M 499 557 L 347 405 C 365 322 425 263 500 263 C 575 263 635 322 653 405 L 501 557 Q 500 558 499 557 Z"/>
+  <g id="park-lower-stand">
+    <path d="M 85 304 L 323 537 L 310 550 L 72 318 Z" fill="#24463b"/>
+    <path d="M 76 319 L 310 547 M 80 315 L 314 543 M 84 311 L 318 539" stroke="#69907b" opacity=".53" stroke-width="1" fill="none"/>
+    <path d="M 115 342 l -9 10 M 158 384 l -9 10 M 201 426 l -9 10 M 244 468 l -9 10 M 287 510 l -9 10" stroke="#183b32" stroke-width="5"/>
+  </g>
+</defs>
+<g aria-hidden="true" pointer-events="none">
+  <rect width="1000" height="620" fill="#1c4337"/>
+  <rect width="1000" height="620" fill="url(#park-grid)"/>
+  <g fill="none" stroke-linejoin="round">
+    <use href="#park-fence" stroke="#122f28" stroke-width="65" opacity=".64"/>
+    <use href="#park-fence" stroke="#426655" stroke-width="50"/>
+    <use href="#park-fence" stroke="#294c3f" stroke-width="45"/>
+    <use href="#park-fence" stroke="#527360" stroke-width="35"/>
+    <use href="#park-fence" stroke="#28483c" stroke-width="33"/>
+    <use href="#park-fence" stroke="#64816a" stroke-width="24"/>
+    <use href="#park-fence" stroke="#2d5140" stroke-width="22"/>
+    <use href="#park-fence" stroke="#96a78a" stroke-width="12"/>
+    <use href="#park-fence" stroke="#234736" stroke-width="10"/>
+  </g>
+  <use href="#park-lower-stand"/>
+  <use href="#park-lower-stand" transform="translate(1000 0) scale(-1 1)"/>
+  <g clip-path="url(#park-field-clip)">
+    <rect width="1000" height="620" fill="url(#park-grass)"/>
+    <path d="M 500 538 L 101 139 L 0 220 L 0 620 L 1000 620 L 1000 220 L 899 139 Z" fill="#163e33" opacity=".2"/>
+    <use href="#park-fence" fill="none" stroke="#a17152" stroke-width="34" stroke-linejoin="round"/>
+    <use href="#park-fence" fill="none" stroke="url(#park-clay-grain)" stroke-width="34" stroke-linejoin="round"/>
+    <use href="#park-fence" fill="none" stroke="#d3b776" stroke-width="3" stroke-linejoin="round"/>
+    <rect width="1000" height="620" fill="url(#park-grain)"/>
+    <use href="#park-infield" fill="#b8825e"/>
+    <use href="#park-infield" fill="url(#park-clay-grain)"/>
+    <path d="M 500 315 L 603 418 L 500 521 L 397 418 Z" fill="url(#park-grass)" stroke="#aa7755" stroke-width="2"/>
+    <path d="M 500 315 L 603 418 L 500 521 L 397 418 Z" fill="url(#park-grain)"/>
+    <circle cx="500" cy="424" r="17" fill="#c39469" stroke="#a97a56" stroke-width="1.6"/>
+    <circle cx="500" cy="424" r="17" fill="url(#park-clay-grain)"/>
+    <rect x="496" y="421.5" width="8" height="2.2" rx=".4" fill="#fff0ca"/>
+    <circle cx="500" cy="538" r="26" fill="#b8825e"/>
+    <circle cx="500" cy="538" r="26" fill="url(#park-clay-grain)"/>
+    <path d="M 172 210 L 500 538 L 828 210" fill="none" stroke="#f7edce" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M 557 486 L 614 429" fill="none" stroke="#eadcba" stroke-width="1.3"/>
+    <g fill="none" stroke="#f3e8ca" stroke-width="1.25">
+      <path d="M 473 544 A 28 28 0 0 0 527 544" opacity=".72"/>
+      <path d="M 485 528 h 8 v 16 h -8 Z M 507 528 h 8 v 16 h -8 Z M 495 545 v 9 h 10 v -9" opacity=".88"/>
+      <path d="M 359 429 l -5 5 l 28 28 l 5 -5 M 641 429 l 5 5 l -28 28 l -5 -5" opacity=".78"/>
+      <circle cx="406" cy="523" r="5" opacity=".74"/>
+      <circle cx="594" cy="523" r="5" opacity=".74"/>
+    </g>
+    <g fill="#fff1ce" stroke="#a08561" stroke-width=".65">
+      <path d="M 500 294 l 4 4 l -4 4 l -4 -4 Z M 620 414 l 4 4 l -4 4 l -4 -4 Z M 380 414 l 4 4 l -4 4 l -4 -4 Z"/>
+      <path d="M 496.7 535.2 h 6.6 v 3.2 l -3.3 2.7 l -3.3 -2.7 Z"/>
+    </g>
+  </g>
+  <g stroke="#d9ae5a" stroke-width="3.2" stroke-linecap="round">
+    <path d="M 176 214 l -8 -8 M 824 214 l 8 -8"/>
+  </g>
+  <g font-family="Barlow Condensed, Arial Narrow, Arial, sans-serif" font-size="11" font-weight="bold" fill="#f3dfad" opacity=".72" text-anchor="middle" letter-spacing="1.5">
+    <text x="500" y="55">400</text>
+    <text transform="translate(209 180) rotate(-44)">325</text>
+    <text transform="translate(791 180) rotate(44)">325</text>
+  </g>
+</g>
+
+          <g id="routes"></g><g id="tokens"></g>
+          <g id="cover-label" visibility="hidden" pointer-events="none" aria-hidden="true">
+            <path d="M0 -16v-9" stroke="#fff5de" stroke-width="2"/>
+            <rect x="-16" y="-47" width="32" height="22" rx="8" fill="#fcf6dc" stroke="#214936" stroke-width="2"/>
+            <text x="0" y="-31" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#203e2e">2B</text>
+          </g>
+        </svg>
+        <div class="field-hud"><span class="mini-inning" id="inning-hud"></span><span class="hud-divider"></span><span id="outs-hud"></span></div>
+        <div class="drill-step-hud" id="drill-step-hud" hidden></div>
+        <div class="field-key"><span><b class="key-dot fielder"></b>守備</span><span><b class="key-dot runner"></b>跑者</span><span><b class="key-dot batter"></b>打者</span><span><b class="key-dot ball"></b>球</span></div>
+        <button class="field-play" id="field-play" aria-label="播放推演"></button>
+      </div>
+      <footer class="field-tools">
+        <div class="tools-group" role="group" aria-label="球場工具">
+          <button class="tool" data-mode="select" title="拖曳球員或球"><i data-icon="pointer"></i>移動</button>
+          <button class="tool" data-mode="move" title="從起點畫到終點，標記跑位"><i data-icon="route"></i>跑位線</button>
+          <button class="tool" data-mode="throw" title="從起點畫到終點，標記傳球"><i data-icon="pass"></i>傳球線</button>
+          <button class="tool" data-mode="erase" title="點選要擦除的路線"><i data-icon="eraser"></i>擦線</button>
+        </div>
+        <div class="tools-group history-tools"><button class="icon-btn" id="undo" aria-label="復原" title="復原 (Ctrl+Z)"><i data-icon="undo"></i></button><button class="icon-btn" id="redo" aria-label="重做" title="重做 (Ctrl+Shift+Z)"><i data-icon="redo"></i></button></div>
+      </footer>
+    </article>
+    <aside class="sidebar" aria-label="推演控制">
+      <section id="practice-active" class="panel" hidden></section>
+      <section class="panel control-panel">
+        <header class="panel-head"><div class="head-title"><span class="icon-box"><i data-icon="sliders"></i></span><h2>比賽情境</h2></div></header>
+        <div class="panel-body">
+          <div class="form-row">
+            <div class="control"><span id="inning-label" class="field-label">局數</span><div class="stepper" role="group" aria-labelledby="inning-label"><button id="inning-minus" title="減少一局" aria-label="減少一局">−</button><output id="inning-value">1</output><button id="inning-plus" title="增加一局" aria-label="增加一局">+</button></div></div>
+            <div class="control"><span id="half-label" class="field-label">半局</span><div class="segmented" role="group" aria-labelledby="half-label"><button data-half="top">上半局</button><button data-half="bottom">下半局</button></div></div>
+          </div>
+          <div class="control"><span class="field-label" id="outs-label">出局數</span><div class="segmented" role="group" aria-labelledby="outs-label"><button data-outs="0">0 出局</button><button data-outs="1">1 出局</button><button data-outs="2">2 出局</button></div></div>
+          <div class="control"><span class="field-label" id="bases-label">起始壘包狀態</span><div class="base-options" role="group" aria-labelledby="bases-label"><button class="base-choice" data-base="0"><i class="base-diamond"></i>一壘</button><button class="base-choice" data-base="1"><i class="base-diamond"></i>二壘</button><button class="base-choice" data-base="2"><i class="base-diamond"></i>三壘</button></div></div>
+          <div class="batter-control">
+            <label for="batter-toggle"><input id="batter-toggle" type="checkbox">打者跑壘</label>
+            <label class="run-target-label" for="run-target">跑壘目標
+              <select id="run-target">
+                <option value="1">一壘</option><option value="2">二壘</option>
+                <option value="3">三壘</option><option value="4">本壘</option>
+                <option value="manual">手動跑線</option>
+              </select>
+            </label>
+            <p id="run-hint" class="run-hint"></p>
+          </div>
+        </div>
+      </section>
+      <section class="panel timeline-panel">
+        <header class="panel-head"><div class="head-title"><span class="icon-box"><i data-icon="timeline"></i></span><h2>推演步驟</h2></div><span class="head-meta" id="frame-count"></span></header>
+        <div class="panel-body">
+          <div class="step-list" id="step-list" aria-label="戰術步驟"></div>
+          <button id="add-step" class="add-step"><i data-icon="plus"></i>新增步驟</button>
+          <button class="play-btn" id="play"><i data-icon="play"></i><span>播放推演</span></button>
+          <button class="text-btn end-playback" id="end-playback" hidden>結束播放，回到步驟編輯</button>
+          <p class="timeline-tip" id="timeline-tip"></p>
+        </div>
+      </section>
+    </aside>
+  </div>
+  <section id="important-concepts" aria-labelledby="concept-heading">
+    <div class="section-heading"><h2 id="concept-heading">重要跑壘觀念</h2><p id="concept-count"></p></div>
+    <div id="concept-list" class="concept-list"></div>
+  </section>
+  <section id="practice-library" aria-labelledby="practice-heading"></section>
+  <section aria-labelledby="presets-heading">
+    <div class="section-heading"><h2 id="presets-heading">戰術範本</h2><p>選擇情境，載入球員站位與推演步驟。</p></div>
+    <div class="preset-grid" id="presets"></div>
+  </section>
+</main>
+<dialog class="modal" id="modal"></dialog>
+<dialog class="modal" id="step-dialog" aria-labelledby="step-dialog-heading">
+  <form id="step-form"><header class="modal-head"><h2 id="step-dialog-heading">編輯步驟</h2><button type="button" class="icon-btn" id="step-close" title="關閉" aria-label="關閉"><i data-icon="close"></i></button></header>
+  <div class="modal-body"><label for="step-name">步驟名稱</label><input id="step-name" class="input" required maxlength="80" autocomplete="off"></div>
+  <footer class="modal-foot"><button class="btn secondary danger" type="button" id="step-delete">刪除步驟</button><button class="btn primary" type="submit">套用</button></footer></form>
+</dialog>
+<div id="toast" role="status" class="toast" aria-live="polite"></div>
+<script type="application/json" id="concept-seed">[{"id":"fdfc40c4-619d-4470-9f6b-309183a6bd6b","time":1795273093558,"play":{"title":"二壘有人1人出局右半邊滾地","scenarioId":"standard","inning":1,"half":"top","outs":1,"batter":true,"runTarget":1,"bases":[false,true,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":498,"y":423},"BR":{"x":486,"y":535},"R1":{"x":637,"y":439},"R2":{"x":501,"y":303},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 2","positions":{"P":{"x":501,"y":419},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":291},"3B":{"x":349,"y":382},"SS":{"x":416,"y":291},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":496,"y":531},"BR":{"x":486,"y":535},"R1":{"x":637,"y":439},"R2":{"x":454,"y":324},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"一打出去判斷右半邊","positions":{"P":{"x":501,"y":419},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":576,"y":301},"3B":{"x":349,"y":382},"SS":{"x":448,"y":287},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":524,"y":468},"BR":{"x":486,"y":535},"R1":{"x":637,"y":439},"R2":{"x":436,"y":343},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"全力跑","positions":{"P":{"x":501,"y":419},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":576,"y":311},"3B":{"x":349,"y":382},"SS":{"x":473,"y":294},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":557,"y":351},"BR":{"x":486,"y":535},"R1":{"x":637,"y":439},"R2":{"x":422,"y":357},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"全力跑","positions":{"P":{"x":501,"y":419},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":576,"y":311},"3B":{"x":349,"y":382},"SS":{"x":495,"y":297},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":574,"y":318},"BR":{"x":486,"y":535},"R1":{"x":637,"y":439},"R2":{"x":406,"y":373},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 6","positions":{"P":{"x":501,"y":419},"C":{"x":500,"y":569},"1B":{"x":620,"y":417},"2B":{"x":576,"y":311},"3B":{"x":349,"y":382},"SS":{"x":495,"y":297},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":616,"y":413},"BR":{"x":486,"y":535},"R1":{"x":637,"y":439},"R2":{"x":382,"y":415},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0}]}},{"id":"9d8a80d7-7f4b-4652-8379-68339bd27b61","time":1795269371297,"play":{"title":"二壘有人游擊滾地(2人出局)","scenarioId":"standard","inning":1,"half":"top","outs":0,"batter":true,"runTarget":1,"bases":[false,true,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":501,"y":427},"BR":{"x":487,"y":537},"R1":{"x":637,"y":439},"R2":{"x":477,"y":302},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 2","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":499,"y":522},"BR":{"x":487,"y":537},"R1":{"x":637,"y":439},"R2":{"x":453,"y":327},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 3","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":433,"y":316},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":459,"y":367},"BR":{"x":534,"y":511},"R1":{"x":637,"y":439},"R2":{"x":423,"y":357},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 4","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":445,"y":337},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":449,"y":339},"BR":{"x":534,"y":511},"R1":{"x":637,"y":439},"R2":{"x":402,"y":376},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 5","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":615,"y":415},"2B":{"x":499,"y":288},"3B":{"x":384,"y":417},"SS":{"x":445,"y":337},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":612,"y":415},"BR":{"x":534,"y":511},"R1":{"x":637,"y":439},"R2":{"x":384,"y":415},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0}]}},{"id":"ceee9d8c-d815-47f6-bcc0-5a88ec74bb99","time":1795269315530,"play":{"title":"二壘有人游擊滾地(0、1人出局)","scenarioId":"standard","inning":1,"half":"top","outs":0,"batter":true,"runTarget":1,"bases":[false,true,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":501,"y":427},"BR":{"x":487,"y":537},"R1":{"x":637,"y":439},"R2":{"x":477,"y":302},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 2","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":499,"y":522},"BR":{"x":487,"y":537},"R1":{"x":637,"y":439},"R2":{"x":463,"y":316},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 3","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":433,"y":316},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":459,"y":367},"BR":{"x":534,"y":511},"R1":{"x":637,"y":439},"R2":{"x":463,"y":316},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 4","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":616,"y":412},"2B":{"x":548,"y":289},"3B":{"x":349,"y":382},"SS":{"x":433,"y":316},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":433,"y":322},"BR":{"x":556,"y":486},"R1":{"x":637,"y":439},"R2":{"x":463,"y":316},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 5","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":616,"y":412},"2B":{"x":500,"y":297},"3B":{"x":349,"y":382},"SS":{"x":433,"y":316},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":616,"y":410},"BR":{"x":588,"y":449},"R1":{"x":637,"y":439},"R2":{"x":451,"y":329},"R3":{"x":363,"y":439}},"lines":[],"batterBase":1}]}},{"id":"a9a6396d-0a6d-4785-b25f-513c6adeb7ec","time":1795269114347,"play":{"title":"二壘有人球打到右外野，判斷接殺直接回壘(淺)","scenarioId":"standard","inning":1,"half":"top","outs":0,"batter":true,"runTarget":null,"bases":[false,true,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":580,"y":295},"3B":{"x":349,"y":382},"SS":{"x":426,"y":292},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":499,"y":523},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":470,"y":312},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"判斷接殺","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":278},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":698,"y":222},"B":{"x":622,"y":287},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":468,"y":307},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"回壘","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":278},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":674,"y":235},"B":{"x":674,"y":237},"BR":{"x":632,"y":453},"R1":{"x":637,"y":439},"R2":{"x":492,"y":288},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"再跑出去一點","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":278},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":674,"y":235},"B":{"x":646,"y":246},"BR":{"x":663,"y":459},"R1":{"x":637,"y":439},"R2":{"x":466,"y":302},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"球太淺就不跑","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":278},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":674,"y":235},"B":{"x":587,"y":269},"BR":{"x":663,"y":459},"R1":{"x":637,"y":439},"R2":{"x":494,"y":291},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0}]}},{"id":"ac5f9165-59ec-4be6-a1f3-4088e1f1073f","time":1795269103036,"play":{"title":"二壘有人球打到右外野，判斷接殺直接回壘(深)","scenarioId":"standard","inning":1,"half":"top","outs":0,"batter":true,"runTarget":null,"bases":[false,true,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":580,"y":295},"3B":{"x":349,"y":382},"SS":{"x":426,"y":292},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":499,"y":523},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":470,"y":312},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"判斷接殺","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":278},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":685,"y":189},"B":{"x":658,"y":208},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":490,"y":288},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 3","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":260},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":672,"y":181},"B":{"x":670,"y":183},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":499,"y":288},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 4","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":260},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":672,"y":181},"B":{"x":648,"y":197},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":442,"y":316},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 4","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":260},"3B":{"x":382,"y":411},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":672,"y":181},"B":{"x":579,"y":260},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":411,"y":336},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 5","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":260},"3B":{"x":382,"y":411},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":672,"y":181},"B":{"x":434,"y":380},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":386,"y":411},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0}]}},{"id":"2f3decf2-3bb0-4a21-881b-82c56ff438a7","time":1795268951218,"play":{"title":"二壘有人球打到右外野，判斷接殺直接回壘","scenarioId":"standard","inning":1,"half":"top","outs":0,"batter":true,"runTarget":null,"bases":[false,true,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":580,"y":295},"3B":{"x":349,"y":382},"SS":{"x":426,"y":292},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":499,"y":523},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":470,"y":312},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"判斷接殺","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":278},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":698,"y":222},"B":{"x":622,"y":287},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":468,"y":307},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"回壘","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":278},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":674,"y":235},"B":{"x":674,"y":237},"BR":{"x":632,"y":453},"R1":{"x":637,"y":439},"R2":{"x":492,"y":288},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"再跑出去一點","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":278},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":674,"y":235},"B":{"x":646,"y":246},"BR":{"x":663,"y":459},"R1":{"x":637,"y":439},"R2":{"x":466,"y":302},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"球太淺就不跑","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":577,"y":278},"3B":{"x":349,"y":382},"SS":{"x":494,"y":290},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":674,"y":235},"B":{"x":587,"y":269},"BR":{"x":663,"y":459},"R1":{"x":637,"y":439},"R2":{"x":494,"y":291},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0}]}},{"id":"143d6881-a0d0-4a36-a020-b1db8b3c74e9","time":1795268663994,"play":{"title":"二壘有人球打到外野，離一點(沒接到進壘)(中左外皆適用)","scenarioId":"standard","inning":1,"half":"top","outs":0,"batter":true,"runTarget":null,"bases":[false,true,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":580,"y":295},"3B":{"x":349,"y":382},"SS":{"x":426,"y":292},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":504,"y":425},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":483,"y":297},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 2","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":504,"y":292},"3B":{"x":382,"y":417},"SS":{"x":445,"y":243},"LF":{"x":359,"y":203},"CF":{"x":465,"y":150},"RF":{"x":733,"y":206},"B":{"x":446,"y":197},"BR":{"x":605,"y":469},"R1":{"x":637,"y":439},"R2":{"x":449,"y":314},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 3","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":504,"y":292},"3B":{"x":382,"y":417},"SS":{"x":454,"y":226},"LF":{"x":359,"y":203},"CF":{"x":452,"y":185},"RF":{"x":733,"y":206},"B":{"x":446,"y":197},"BR":{"x":613,"y":406},"R1":{"x":637,"y":439},"R2":{"x":404,"y":367},"R3":{"x":363,"y":439}},"lines":[],"batterBase":1},{"name":"步驟 4","positions":{"P":{"x":386,"y":486},"C":{"x":500,"y":569},"1B":{"x":610,"y":411},"2B":{"x":504,"y":292},"3B":{"x":382,"y":417},"SS":{"x":454,"y":226},"LF":{"x":359,"y":203},"CF":{"x":452,"y":185},"RF":{"x":733,"y":206},"B":{"x":386,"y":357},"BR":{"x":613,"y":406},"R1":{"x":637,"y":439},"R2":{"x":385,"y":416},"R3":{"x":363,"y":439}},"lines":[],"batterBase":1}]}},{"id":"e24ae3fb-8822-498e-b368-bf97a2a50a6c","time":1795268492508,"play":{"title":"二壘有人球打到外野，離一點(接殺回壘)(中左外皆適用)","scenarioId":"standard","inning":1,"half":"top","outs":0,"batter":true,"runTarget":null,"bases":[false,true,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":580,"y":295},"3B":{"x":349,"y":382},"SS":{"x":426,"y":292},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":504,"y":425},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 2","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":580,"y":295},"3B":{"x":349,"y":382},"SS":{"x":426,"y":292},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":495,"y":521},"BR":{"x":481,"y":532},"R1":{"x":637,"y":439},"R2":{"x":461,"y":308},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 3","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":511,"y":292},"3B":{"x":349,"y":382},"SS":{"x":496,"y":230},"LF":{"x":267,"y":206},"CF":{"x":500,"y":150},"RF":{"x":733,"y":206},"B":{"x":500,"y":160},"BR":{"x":620,"y":460},"R1":{"x":637,"y":439},"R2":{"x":469,"y":305},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 4","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":511,"y":292},"3B":{"x":375,"y":407},"SS":{"x":496,"y":230},"LF":{"x":267,"y":206},"CF":{"x":500,"y":150},"RF":{"x":733,"y":206},"B":{"x":506,"y":286},"BR":{"x":668,"y":480},"R1":{"x":637,"y":439},"R2":{"x":507,"y":295},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0}]}},{"id":"52e4b608-3237-47ab-988a-99fe60ce3ae3","time":1795268299178,"play":{"title":"一壘有人外野後把球(左中外皆適用)","scenarioId":"standard","inning":1,"half":"top","outs":0,"batter":true,"runTarget":null,"bases":[true,false,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":617,"y":422},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":502,"y":438},"BR":{"x":487,"y":539},"R1":{"x":621,"y":418},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"打到外野後把","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":617,"y":422},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":315,"y":166},"CF":{"x":467,"y":103},"RF":{"x":733,"y":206},"B":{"x":414,"y":164},"BR":{"x":593,"y":485},"R1":{"x":550,"y":320},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"步驟 3","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":617,"y":422},"2B":{"x":513,"y":297},"3B":{"x":381,"y":419},"SS":{"x":395,"y":226},"LF":{"x":341,"y":127},"CF":{"x":415,"y":85},"RF":{"x":733,"y":206},"B":{"x":382,"y":70},"BR":{"x":584,"y":346},"R1":{"x":434,"y":337},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"此時若為兩人出局可以考慮跑本壘","positions":{"P":{"x":549,"y":579},"C":{"x":500,"y":569},"1B":{"x":617,"y":422},"2B":{"x":513,"y":297},"3B":{"x":381,"y":419},"SS":{"x":395,"y":226},"LF":{"x":341,"y":127},"CF":{"x":398,"y":79},"RF":{"x":733,"y":206},"B":{"x":398,"y":230},"BR":{"x":512,"y":299},"R1":{"x":384,"y":437},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":2}]}},{"id":"bb8fe4a5-5804-46fb-a6b8-980055156a62","time":1795267992307,"play":{"title":"一壘有人右外野深安","scenarioId":"standard","inning":5,"half":"top","outs":1,"batter":true,"runTarget":null,"bases":[true,false,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":606,"y":405},"2B":{"x":554,"y":291},"3B":{"x":349,"y":382},"SS":{"x":446,"y":292},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":498,"y":429},"BR":{"x":492,"y":539},"R1":{"x":616,"y":413},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"右外野安打","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":612,"y":393},"2B":{"x":577,"y":269},"3B":{"x":349,"y":382},"SS":{"x":463,"y":294},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":716,"y":177},"B":{"x":618,"y":194},"BR":{"x":543,"y":504},"R1":{"x":552,"y":359},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"球很申 準備跑三壘","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":585,"y":213},"3B":{"x":379,"y":413},"SS":{"x":503,"y":295},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":681,"y":124},"B":{"x":652,"y":135},"BR":{"x":610,"y":392},"R1":{"x":466,"y":311},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":1},{"name":"步驟 4","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":585,"y":213},"3B":{"x":379,"y":413},"SS":{"x":503,"y":295},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":681,"y":124},"B":{"x":519,"y":283},"BR":{"x":616,"y":414},"R1":{"x":388,"y":405},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":1}]}},{"id":"235e3f9f-9a92-48e0-8fac-fe09f130ca29","time":1795267776370,"play":{"title":"一壘有人右外野淺安","scenarioId":"standard","inning":5,"half":"top","outs":1,"batter":true,"runTarget":null,"bases":[true,false,false],"frames":[{"name":"起始站位","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":606,"y":405},"2B":{"x":554,"y":291},"3B":{"x":349,"y":382},"SS":{"x":446,"y":292},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":498,"y":429},"BR":{"x":492,"y":539},"R1":{"x":616,"y":413},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"右外野安打","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":581,"y":304},"3B":{"x":349,"y":382},"SS":{"x":464,"y":293},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":607,"y":354},"BR":{"x":543,"y":504},"R1":{"x":552,"y":359},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"球很淺 停在二壘","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":581,"y":304},"3B":{"x":378,"y":410},"SS":{"x":517,"y":328},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":672,"y":267},"B":{"x":651,"y":287},"BR":{"x":612,"y":393},"R1":{"x":508,"y":303},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":1}]}}]</script>
+<script>(() => {
+  'use strict';
+
+  const groups = [
+    { id: 'first', title: '一壘跑者，未滿兩出局', shortTitle: '一壘有人', bases: [true, false, false], focus: 1, outs: 0 },
+    { id: 'second-open', title: '二壘跑者，一壘無人，未滿兩出局', shortTitle: '二壘有人', bases: [false, true, false], focus: 2, outs: 0 },
+    { id: 'third-open', title: '三壘跑者，一、二壘無人，未滿兩出局', shortTitle: '三壘有人', bases: [false, false, true], focus: 3, outs: 0 },
+    { id: 'second-forced', title: '一、二壘有人，二壘跑者的判斷，未滿兩出局', shortTitle: '一、二壘有人', bases: [true, true, false], focus: 2, outs: 0 },
+    { id: 'loaded', title: '滿壘，三壘跑者的判斷，未滿兩出局', shortTitle: '滿壘', bases: [true, true, true], focus: 3, outs: 0 },
+    { id: 'two-outs', title: '兩出局，各壘跑者的起跑', shortTitle: '兩出局', bases: [true, true, true], focus: 'all', outs: 2 }
+  ];
+
+  const titles = {
+    pop: '內野高飛球',
+    groundLeft: '內野左側滾地球',
+    groundRight: '內野右側滾地球',
+    line: '平飛球',
+    deep: '深遠飛球',
+    deepLeft: '左外野深遠飛球',
+    deepRight: '右外野深遠飛球',
+    foul: '深遠界外飛球',
+    foulLeft: '左外野深遠界外飛球',
+    foulRight: '右外野深遠界外飛球'
+  };
+  const baseNames = { 1: '一壘', 2: '二壘', 3: '三壘', 4: '本壘' };
+  const cases = [];
+
+  function add(groupId, kind, note, choices) {
+    const { focus } = groups.find(group => group.id === groupId);
+    const destination = baseNames[focus + 1];
+    function variant(id) {
+      if (id === 'run') return { id, title: '擊球即全速起跑' };
+      if (id === 'stay') return { id, title: '留在' + baseNames[focus] };
+      if (id === 'tag') return { id, title: '踩壘後跑向' + destination };
+      const prefix = kind === 'groundLeft' || kind === 'groundRight' ? '推進至' : '界內落地後跑向';
+      return { id, title: prefix + destination };
+    }
+    cases.push({ id: 'drill-' + groupId + '-' + kind, groupId, title: titles[kind], kind, note, variants: choices.map(variant) });
+  }
+
+  add('first', 'pop', '一壘跑者先離壘三、四步，看游擊手能否接住。若球落地，跑者受迫進二壘，由游擊手撿球；若游擊手接殺，跑者回踩並留在一壘。二壘手全程守二壘。', ['advance', 'stay']);
+  add('first', 'groundLeft', '球滾向三壘手或游擊手時，一壘跑者受迫進壘。立即全速跑向二壘。', ['advance']);
+  add('first', 'groundRight', '球滾向一、二壘之間，一壘跑者受迫離壘，全速跑向二壘。', ['advance']);
+  add('first', 'line', '先離一壘三、四步，確認平飛球是否穿越守備。未接住可進二壘。若被接住，須回踩一壘，再判斷要起跑或停留。', ['advance', 'tag', 'stay']);
+  add('first', 'deep', '先離一壘三、四步看外野手。球在界內落地後可進二壘。球被接住時，回踩後再決定推進或留在一壘。', ['advance', 'tag', 'stay']);
+  add('first', 'foul', '深遠界外飛球有機會被接住時，在一壘踩壘看球。守備員首次觸球後，若距離足夠可跑向二壘，也可留在一壘。', ['tag', 'stay']);
+
+  add('second-open', 'pop', '一壘無人，二壘跑者先離壘三、四步看球。若在界內落地，判斷能否進三壘。若被接住，可回踩二壘再起跑，或留壘。', ['advance', 'tag', 'stay']);
+  add('second-open', 'groundLeft', '二壘跑者沒有被迫進壘。追蹤左側滾地球與接球的野手，確認能安全抵達三壘才進壘。機會不足就留在二壘。', ['advance', 'stay']);
+  add('second-open', 'groundRight', '球滾向內野右側，二壘跑者全速跑向三壘。', ['advance']);
+  add('second-open', 'line', '從二壘離開三、四步觀察平飛球。球穿過守備、落在界內後可進三壘。若被接住，回踩後再進壘或留在二壘。', ['advance', 'tag', 'stay']);
+  add('second-open', 'deepRight', '先離二壘三、四步，觀察右外野手與落點，準備全速進三壘。若球被接住，須先回踩二壘，等守備員首次觸球後才能起跑。', ['advance', 'tag']);
+  add('second-open', 'deepLeft', '先離二壘三、四步觀察左外野手。球在界內落地後可進三壘。若接住，按回傳距離選擇回踩後起跑，或留在二壘。', ['advance', 'tag', 'stay']);
+  add('second-open', 'foulRight', '在二壘看右外野界外飛球。球被接住時，可留在二壘。若有足夠時間，就在守備員首次觸球後從二壘全速跑向三壘。', ['tag', 'stay']);
+  add('second-open', 'foulLeft', '留意左外野界外球的接球點。守備員首次觸球後，若安全便從二壘跑向三壘。回傳太近就留在二壘。', ['tag', 'stay']);
+
+  add('third-open', 'pop', '從三壘離開三、四步看球。若在界內落地，判斷能否回本壘。若被接住，先回踩三壘，再選擇起跑或留壘。', ['advance', 'tag', 'stay']);
+  add('third-open', 'groundLeft', '一、二壘無人，三壘跑者可以留壘。先看左側滾地球經過哪位野手，確定能安全回本壘再跑。', ['advance', 'stay']);
+  add('third-open', 'groundRight', '球滾向內野右側，本題練習三壘跑者把握機會，全速跑回本壘。', ['advance']);
+  add('third-open', 'line', '離三壘三、四步看平飛球。若在界內落地便判斷能否得分。若被接住，回踩三壘後再判斷回本壘或留在三壘。', ['advance', 'tag', 'stay']);
+  add('third-open', 'deepRight', '先離三壘三、四步觀察右外野。若球落在界內便全速回本壘。若將被接住，先回踩三壘，在首次觸球後全速出發。', ['advance', 'tag']);
+  add('third-open', 'deepLeft', '先從三壘探出三、四步看左外野手。界內落球後全速回本壘。若是接殺球，回踩三壘並等守備員首次觸球後再跑。', ['advance', 'tag']);
+  add('third-open', 'foulRight', '看右外野手追向界外的接球位置，踩住三壘準備。這球被接住，跑者可在守備員首次觸球後全速回本壘。', ['tag']);
+  add('third-open', 'foulLeft', '左外野手追接界外深遠飛球時，先回三壘踩穩。看準守備員首次觸球的時刻，全速跑回本壘。', ['tag']);
+
+  add('second-forced', 'pop', '一壘也有跑者。若裁判宣告內野高飛必死球，打者出局、跑者可自行決定是否進壘。從二壘離開三、四步觀察，界內落球便判斷向三壘推進。若被接住，回踩二壘後可起跑或留壘。', ['advance', 'tag', 'stay']);
+  add('second-forced', 'groundLeft', '打者擊出左側滾地球，一壘跑者必須向前，二壘跑者也受迫進壘，立即全速跑向三壘。', ['advance']);
+  add('second-forced', 'groundRight', '右側滾地球形成受迫進壘，二壘跑者全速跑向三壘。', ['advance']);
+  add('second-forced', 'line', '先離二壘三、四步觀察平飛球。若在界內落地，跑向三壘。若被接殺，先回踩二壘，再決定推進或留壘。', ['advance', 'tag', 'stay']);
+  add('second-forced', 'deepRight', '先離二壘三、四步看右外野。若在界內落地，全速進三壘。若被接住，先回踩二壘，等守備員首次觸球後全速推進。', ['advance', 'tag']);
+  add('second-forced', 'deepLeft', '先離二壘三、四步看左外野手。若在界內落地，跑向三壘。若左外野手接住，本題練習回踩並留在二壘。', ['advance', 'stay']);
+  add('second-forced', 'foulRight', '右外野深處的界外球被接住。二壘跑者踩穩原壘、盯住守備員，首次觸球後全速跑向三壘。', ['tag']);
+  add('second-forced', 'foulLeft', '左外野手追接深遠界外飛球，二壘跑者在壘包上觀察。這球被接住後，留在二壘。', ['stay']);
+
+  add('loaded', 'pop', '滿壘時三壘跑者先離壘三、四步看球。若宣告內野高飛必死球，打者出局，跑者失去受迫進壘義務。界內落球後判斷能否回本壘。若被接住，可先回踩三壘再起跑，或留壘。', ['advance', 'tag', 'stay']);
+  add('loaded', 'groundLeft', '滿壘擊出左側滾地球，三壘跑者受迫向前，全速跑向本壘。', ['advance']);
+  add('loaded', 'groundRight', '滿壘擊出右側滾地球，三壘跑者受迫進壘，全速跑回本壘。', ['advance']);
+  add('loaded', 'line', '先離三壘三、四步追蹤平飛球。若在界內落地便向本壘推進。若被接住，要先回踩三壘，再選擇回本壘或留壘。', ['advance', 'tag', 'stay']);
+  add('loaded', 'deepRight', '從三壘探出三、四步觀察右外野。界內落球後全速回本壘。若球被接住，回踩三壘，在守備員首次觸球後全速出發。', ['advance', 'tag']);
+  add('loaded', 'deepLeft', '從三壘離開三、四步觀察左外野手。球落在界內就全速回本壘。若外野手接住，回踩三壘，等首次觸球後再衝本壘。', ['advance', 'tag']);
+  add('loaded', 'foulRight', '右外野深遠界外球有機會被接住。三壘跑者先回壘看球，從守備員首次觸球時起全速跑回本壘。', ['tag']);
+  add('loaded', 'foulLeft', '左外野手追向界外時，三壘跑者踩壘準備。看準守備員首次觸球後起跑，全速回本壘。', ['tag']);
+
+  const twoOutSetup = '示範從滿壘開始，可調整壘包配置。';
+  add('two-outs', 'pop', twoOutSetup + '擊出內野高飛球時，各壘跑者立即全速奔向下一壘。若球被接住，第三出局成立。', ['run']);
+  add('two-outs', 'groundLeft', twoOutSetup + '擊出左側滾地球時，各壘跑者立即全速跑向下一壘，直到守備完成第三個出局或這次攻防結束。', ['run']);
+  add('two-outs', 'groundRight', twoOutSetup + '擊出右側滾地球時，壘上跑者立即全速跑向各自的下一壘。', ['run']);
+  add('two-outs', 'line', twoOutSetup + '擊出平飛球時，各壘跑者立即全速奔向下一壘。若守備員接殺，半局結束。', ['run']);
+  add('two-outs', 'deep', twoOutSetup + '深遠飛球離棒時，各壘跑者立即全速推進。若在界內落地，持續判斷下一壘。若被接住，第三出局成立。', ['run']);
+  add('two-outs', 'foul', twoOutSetup + '球飛向深處界外時，跑者仍先全速起跑。若被接住，第三出局成立。若在界外落地未被接住，回到原壘。', ['run']);
+
+  window.PracticeCatalog = { groups, cases };
+})();
+</script>
+<script>(() => {
+  'use strict';
+
+  const p = (x, y) => ({ x, y });
+  const bags = [null, p(620, 418), p(500, 298), p(380, 418), p(500, 538)];
+  const names = ['', '一壘', '二壘', '三壘', '本壘'];
+  const contact = p(474, 508);
+  const copy = value => JSON.parse(JSON.stringify(value));
+  const mix = (a, b, t) => p(Math.round(a.x + (b.x - a.x) * t), Math.round(a.y + (b.y - a.y) * t));
+  const offset = (v, x, y) => p(v.x + x, v.y + y);
+  const vector = (type, a, b) => ({ type, x1: a.x, y1: a.y, x2: b.x, y2: b.y });
+
+  // The left/right foul points lie outside their chalk lines and inside the park.
+  const flights = {
+    pop:       { fielder: 'SS', end: p(422, 314) },
+    line:      { fielder: 'LF', end: p(332, 250) },
+    deep:      { fielder: 'CF', end: p(521, 91) },
+    deepLeft:  { fielder: 'LF', end: p(284, 148) },
+    deepRight: { fielder: 'RF', end: p(718, 148) },
+    foul:      { fielder: 'LF', end: p(165, 256) },
+    foulLeft:  { fielder: 'LF', end: p(154, 249) },
+    foulRight: { fielder: 'RF', end: p(846, 249) }
+  };
+
+  function buildPracticePlay(drill, group, variantId, standardPlay, revision = 2) {
+    const play = copy(standardPlay);
+    const choice = drill.variants.find(option => option.id === variantId) || drill.variants[0];
+    const variant = choice.id;
+    const kind = drill.kind;
+    const twoOuts = group.outs === 2;
+    const ground = kind === 'groundLeft' || kind === 'groundRight';
+    const foul = kind.startsWith('foul');
+    const caught = !ground && (foul || variant === 'stay' || variant === 'tag');
+    const active = [1, 2, 3].filter(n => group.bases[n - 1]);
+    const focus = group.focus;
+    const targetName = focus === 'all' ? '下一壘' : names[focus + 1];
+    const start = copy(play.frames[0].positions);
+    start.B = contact;
+    const firstBasePop = drill.id === 'drill-first-pop' && revision >= 2;
+    if (firstBasePop) start['2B'] = { ...bags[2] };
+    for (const n of active) start['R' + n] = { ...bags[n] };
+    Object.assign(play, {
+      title: group.shortTitle + '・' + drill.title + '・' + choice.title,
+      scenarioId: drill.id, practiceVariant: variant, outs: group.outs,
+      bases: [...group.bases], batter: true, runTarget: null,
+      frames: [{ name: twoOuts ? '兩出局，擊球即起跑' : '踩穩原壘，準備讀球', positions: start, lines: [], batterBase: 0 }]
+    });
+
+    function add(name, change, { pass = null, batterBase = 0, batterOut = false } = {}) {
+      const last = play.frames[play.frames.length - 1];
+      const previous = last.positions;
+      const positions = copy({ ...previous, ...change });
+      const lines = [];
+      for (const n of active) {
+        const id = 'R' + n;
+        const a = previous[id], b = positions[id];
+        if (Math.hypot(a.x - b.x, a.y - b.y) >= 22) lines.push(vector('move', a, b));
+      }
+      if (pass) lines.push(vector('throw', pass, positions.B));
+      const frame = { name, positions, lines, batterBase };
+      if (batterOut || last.batterOut) frame.batterOut = true;
+      play.frames.push(frame);
+    }
+
+    function runners(progress, include = () => true) {
+      const changes = {};
+      for (const n of active) {
+        if (include(n)) changes['R' + n] = mix(bags[n], bags[n + 1], progress);
+      }
+      return changes;
+    }
+    const batterAt = t => mix(start.BR, bags[1], t);
+
+    if (firstBasePop) {
+      play.practiceRevision = 2;
+      const landing = p(421, 324);
+      const looseBall = p(376, 292);
+      add('一壘跑者離壘三、四步，看游擊手追球', {
+        ...runners(.18), BR: batterAt(.23), B: mix(contact, landing, .55), SS: p(408, 302)
+      });
+      if (caught) {
+        add('跑者回踩一壘，游擊手移到落點', {
+          ...runners(0), BR: batterAt(.4), B: mix(contact, landing, .83), SS: p(405, 310)
+        });
+        add('游擊手接殺並持球，跑者留在一壘', {
+          B: landing, SS: p(406, 311), BR: batterAt(.5)
+        }, { batterOut: true });
+      } else {
+        add('球在界內落地，一壘跑者加速進二壘', {
+          B: landing, SS: p(400, 320), ...runners(.35), BR: batterAt(.43)
+        });
+        add('球彈向游擊區，游擊手轉身追球', {
+          B: looseBall, SS: p(397, 315), ...runners(.76), BR: batterAt(.73)
+        });
+        add('游擊手撿起球，跑者抵達二壘', {
+          B: looseBall, SS: p(362, 280), ...runners(1), BR: bags[1]
+        }, { batterBase: 1 });
+      }
+      return play;
+    }
+
+    if (ground) {
+      const left = kind === 'groundLeft';
+      const infielder = left ? 'SS' : '2B', outfielder = left ? 'LF' : 'RF';
+      const pickup = left ? p(407, 346) : p(593, 346);
+      const outfield = left ? p(331, 247) : p(669, 247);
+      const glove = offset(pickup, left ? -18 : 18, -14);
+      const holds = variant === 'stay';
+      const readFirst = !twoOuts && left && !group.bases[0];
+      const running = n => !holds || n !== focus;
+      add(readFirst ? '追蹤左側滾地球，先看接球位置' : (twoOuts ? '各壘跑者擊球即全速起跑' : '球落地，立即全速奔向' + targetName), {
+        ...runners(readFirst ? .08 : .3, running), BR: batterAt(.27),
+        B: mix(contact, pickup, .53), [infielder]: mix(start[infielder], glove, .45)
+      });
+      add(holds ? '野手迎球並牽制，跑者留在原壘' : '滾地球穿越內野，跑者加速', {
+        ...runners(.58, running), BR: batterAt(.54), B: pickup,
+        [infielder]: holds ? glove : offset(glove, left ? 25 : -25, 5),
+        [outfielder]: mix(start[outfielder], outfield, .33), '1B': p(647, 390)
+      });
+      if (holds) {
+        const received = p(635, 396);
+        add('野手看住前位跑者，打者先踩一壘', {
+          ...runners(0), BR: bags[1]
+        }, { batterBase: 1 });
+        add('傳一壘已晚，跑者守住' + names[focus], {
+          B: received, '1B': p(651, 379)
+        }, { pass: pickup, batterBase: 1 });
+      } else {
+        add('外野手上前收球，跑者持續推進', {
+          ...runners(.83), BR: batterAt(.8), B: outfield,
+          [outfielder]: offset(outfield, left ? -17 : 17, -16), [infielder]: mix(glove, p(500, 312), .3)
+        });
+        const cut = left ? p(432, 307) : p(568, 307);
+        add('跑者踩到' + targetName + '，打者安全上一壘', {
+          ...runners(1), BR: bags[1], B: cut, [infielder]: offset(cut, left ? -18 : 18, -13)
+        }, { pass: outfield, batterBase: 1 });
+      }
+      return play;
+    }
+
+    const unusualPop = kind === 'pop' && !twoOuts && group.bases[0] && group.bases[1];
+    const flight = unusualPop ? { fielder: 'LF', end: p(405, 235) } : flights[kind];
+    const { fielder, end } = flight;
+    const left = end.x < 500;
+    const side = left ? -1 : 1;
+    const glove = offset(end, side * 17, -14);
+    const pickup = offset(end, side * 15, -13);
+    const relay = left ? 'SS' : '2B';
+    const cut = left ? p(425, 277) : p(575, 277);
+    const backup = fielder === 'CF' ? 'RF' : 'CF';
+    const readyToCatch = caught && !twoOuts;
+    const batting = t => foul && !twoOuts ? {} : { BR: batterAt(t) };
+
+    add(twoOuts ? '各壘跑者全速起跑，持續看球'
+      : foul ? '踩住原壘，看野手追向界外' : '離壘三至四步，先停下看球', {
+      ...runners(twoOuts ? .34 : foul ? 0 : .2), ...batting(.24),
+      B: mix(contact, end, .43), [fielder]: mix(start[fielder], glove, .35)
+    });
+    add(twoOuts ? '跑者繼續衝刺，野手追向落點'
+      : readyToCatch ? (foul ? '持續踩壘，等野手首次觸球' : '判斷可能接住，先回踩原壘')
+        : '維持三至四步，確認球的落點', {
+      ...runners(twoOuts ? .62 : readyToCatch ? 0 : .2), ...batting(.47),
+      B: mix(contact, end, .78), [fielder]: mix(start[fielder], glove, .72),
+      [backup]: mix(start[backup], end, .12)
+    });
+
+    if (caught) {
+      if (twoOuts) {
+        add('示範界外球接殺，第三出局、半局結束', {
+          ...runners(.8), ...batting(.71), B: end, [fielder]: glove
+        }, { batterOut: true });
+        return play;
+      }
+      add(foul ? '界外飛球接住，跑者踩著原壘' :
+        unusualPop ? '野手追至內野後方接殺，跑者已回踩' : '守備員首次觸球並接殺，跑者已回踩', {
+        ...runners(0), ...batting(.68), B: end, [fielder]: glove
+      }, { batterOut: true });
+      // A catch removes every force. Only the designated, legally tagged runner tries to advance.
+      const go = variant === 'tag';
+      const receiver = fielder === relay ? '2B' : relay;
+      const tagName = kind === 'pop' ? '野手接穩後跌坐，從' + names[focus] + '起跑' : '看準回傳空檔，從' + names[focus] + '起跑';
+      add(go ? tagName : '判斷回傳距離，留在' + names[focus], {
+        ...runners(go ? .52 : 0, n => n === focus), B: cut, [receiver]: offset(cut, side * 17, -14)
+      }, { pass: end });
+      if (go) add('跑者安全踩到' + targetName, { ...runners(1, n => n === focus) });
+      return play;
+    }
+
+    add(unusualPop ? '內野後方空檔落球，未宣告高飛必死球' : '球在界內落地，確認可以推進', {
+      ...runners(twoOuts ? .8 : .44), ...batting(.66),
+      B: end, [fielder]: offset(glove, -side * 15, -17)
+    });
+    add('野手撿球，跑者全速奔向' + targetName, {
+      ...runners(twoOuts ? .92 : .79), ...batting(.84),
+      B: pickup, [fielder]: offset(pickup, side * 17, -14)
+    });
+    const receiver = fielder === relay ? '2B' : relay;
+    add('跑者踩到' + targetName + '，打者安全上壘', {
+      ...runners(1), BR: bags[1], B: cut, [receiver]: offset(cut, side * 18, -14)
+    }, { pass: pickup, batterBase: 1 });
+    return play;
+  }
+
+  window.buildPracticePlay = buildPracticePlay;
+})();
+</script>
+<script>(() => {
+  'use strict';
+
+  const players = [
+    { id: 'P', label: 'P', name: '投手', kind: 'fielder' },
+    { id: 'C', label: 'C', name: '捕手', kind: 'fielder' },
+    { id: '1B', label: '1B', name: '一壘手', kind: 'fielder' },
+    { id: '2B', label: '2B', name: '二壘手', kind: 'fielder' },
+    { id: '3B', label: '3B', name: '三壘手', kind: 'fielder' },
+    { id: 'SS', label: 'SS', name: '游擊手', kind: 'fielder' },
+    { id: 'LF', label: 'LF', name: '左外野手', kind: 'fielder' },
+    { id: 'CF', label: 'CF', name: '中外野手', kind: 'fielder' },
+    { id: 'RF', label: 'RF', name: '右外野手', kind: 'fielder' },
+    { id: 'B', label: 'B', name: '棒球', kind: 'ball' },
+    { id: 'BR', label: '打', name: '打者跑者', kind: 'batter' },
+    { id: 'R1', label: 'R1', name: '一壘跑者', kind: 'runner' },
+    { id: 'R2', label: 'R2', name: '二壘跑者', kind: 'runner' },
+    { id: 'R3', label: 'R3', name: '三壘跑者', kind: 'runner' }
+  ];
+
+  const presets = [
+    { id: 'standard', title: '標準守備', description: '從九人基本守備站位開始，自訂跑位與傳球。', category: '基本站位' },
+    { id: 'relay', title: '外野中繼', description: '左外野接球後，經游擊手中繼傳回本壘。', category: '中繼傳球' },
+    { id: 'bunt', title: '短打守備', description: '一壘有人，三壘手趨前處理短打並傳一壘。', category: '短打應對' },
+    { id: 'double', title: '內野雙殺', description: '游擊手接滾地球，策動六、四、三雙殺。', category: '內野配合' }
+  ];
+
+  const point = (x, y) => ({ x, y });
+  const batterStops = [
+    point(520, 519), point(620, 418), point(500, 298), point(380, 418), point(500, 538)
+  ];
+  const original = {
+    P: point(500, 421), C: point(500, 569), '1B': point(651, 382),
+    '2B': point(587, 295), '3B': point(349, 382), SS: point(413, 295),
+    LF: point(267, 206), CF: point(500, 122), RF: point(733, 206),
+    B: point(533, 438), BR: batterStops[0], R1: point(637, 439), R2: point(500, 271), R3: point(363, 439)
+  };
+  const move = (x1, y1, x2, y2) => ({ type: 'move', x1, y1, x2, y2 });
+  const pass = (x1, y1, x2, y2) => ({ type: 'throw', x1, y1, x2, y2 });
+  const clone = value => JSON.parse(JSON.stringify(value));
+
+  function frame(name, previous, changes = {}, lines = [], batterBase = 0) {
+    return { name, positions: clone({ ...previous, ...changes }), lines, batterBase };
+  }
+
+  function relay() {
+    const start = frame('二壘有人', original, { B: point(474, 508) });
+    const field = frame('左外野接球', start.positions, {
+      LF: point(220, 201), CF: point(398, 130), SS: point(344, 276),
+      '2B': point(503, 311), '3B': point(378, 409), P: point(536, 523),
+      C: point(501, 548), R2: point(390, 397), BR: point(568, 491), B: point(235, 214)
+    }, [move(267, 206, 220, 201), move(413, 295, 344, 276)]);
+    const cut = frame('游擊手接中繼', field.positions, {
+      SS: point(338, 294), R2: point(398, 435), P: point(544, 570), BR: point(604, 453), B: point(352, 306)
+    }, [pass(235, 214, 352, 306)]);
+    const home = frame('回傳本壘', cut.positions, {
+      C: point(491, 527), R2: point(468, 503), BR: batterStops[1], B: point(482, 515)
+    }, [pass(352, 306, 482, 515)], 1);
+    return [start, field, cut, home];
+  }
+
+  function bunt() {
+    const start = frame('一壘有人', original, { '1B': point(623, 396), B: point(474, 508) });
+    const field = frame('三壘手趨前接球', start.positions, {
+      '3B': point(455, 473), '1B': point(552, 451), '2B': point(601, 376),
+      SS: point(485, 309), P: point(484, 457), C: point(498, 535),
+      R1: point(571, 366), BR: point(540, 513), B: point(469, 484)
+    }, [move(349, 382, 455, 473), move(587, 295, 601, 376)]);
+    const cover = frame('二壘手補一壘', field.positions, {
+      '2B': point(620, 409), SS: point(500, 307), R1: point(527, 320), BR: point(569, 488)
+    }, [move(601, 376, 620, 409)]);
+    const first = frame('三壘手傳一壘', cover.positions, {
+      B: point(609, 424), R1: point(486, 288), BR: point(598, 467)
+    }, [pass(469, 484, 609, 424)]);
+    return [start, field, cover, first];
+  }
+
+  function doublePlay() {
+    const start = frame('雙殺守備站位', original, {
+      SS: point(425, 318), '2B': point(571, 318), '1B': point(622, 397), B: point(474, 508)
+    });
+    const field = frame('游擊手接滾地球', start.positions, {
+      SS: point(421, 346), '2B': point(530, 311), '1B': point(621, 406),
+      R1: point(571, 366), BR: point(540, 512), B: point(435, 357)
+    }, [move(425, 318, 421, 346), move(571, 318, 530, 311)]);
+    const pivot = frame('傳二壘封殺', field.positions, {
+      '2B': point(507, 294), R1: point(527, 320), BR: point(572, 487), B: point(494, 306)
+    }, [pass(435, 357, 494, 306)]);
+    const first = frame('轉傳一壘雙殺', pivot.positions, {
+      '1B': point(622, 411), BR: point(601, 467), B: point(607, 424)
+    }, [pass(494, 306, 607, 424)]);
+    return [start, field, pivot, first];
+  }
+
+  const buildFrames = {
+    standard: () => [frame('起始站位', original)],
+    relay, bunt, double: doublePlay
+  };
+
+  const drills = new Map((window.PracticeCatalog?.cases || []).map(drill => [drill.id, drill]));
+
+  function makePlay(id = 'standard', variantId) {
+    const drill = drills.get(id);
+    if (drill) {
+      const group = window.PracticeCatalog.groups.find(item => item.id === drill.groupId);
+      const variant = drill.variants.find(item => item.id === variantId) || drill.variants[0];
+      return window.buildPracticePlay(drill, group, variant.id, makePlay());
+    }
+    const preset = presets.find(item => item.id === id) || presets[0];
+    return {
+      title: preset.title, scenarioId: preset.id, inning: 1, half: 'top',
+      outs: 0, batter: true, runTarget: preset.id === 'standard' ? 1 : null,
+      bases: [preset.id === 'bunt' || preset.id === 'double', preset.id === 'relay', false],
+      frames: buildFrames[preset.id]()
+    };
+  }
+
+  const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+  const bounded = (value, min, max) => Number.isFinite(value) && value >= min && value <= max;
+  const cleanText = (value, limit) => typeof value === 'string' ? value.trim().slice(0, limit) : '';
+
+  function validFrame(data) {
+    if (!record(data) || !record(data.positions) || !Array.isArray(data.lines) || data.lines.length > 200) return null;
+    const name = cleanText(data.name, 80);
+    if (!name) return null;
+    const batterBase = data.batterBase === undefined ? 0 : data.batterBase;
+    if (!Number.isInteger(batterBase) || !bounded(batterBase, 0, 4)) return null;
+    if (data.batterOut !== undefined && typeof data.batterOut !== 'boolean') return null;
+    const positions = {};
+    for (const player of players) {
+      const p = player.id === 'BR' && data.positions.BR === undefined
+        ? batterStops[batterBase] : data.positions[player.id];
+      if (!record(p) || !bounded(p.x, 0, 1000) || !bounded(p.y, 0, 620)) return null;
+      positions[player.id] = point(p.x, p.y);
+    }
+    const lines = [];
+    for (const line of data.lines) {
+      if (!record(line) || !['move', 'throw'].includes(line.type)) return null;
+      if (!bounded(line.x1, 0, 1000) || !bounded(line.x2, 0, 1000) ||
+          !bounded(line.y1, 0, 620) || !bounded(line.y2, 0, 620)) return null;
+      lines.push({ type: line.type, x1: line.x1, y1: line.y1, x2: line.x2, y2: line.y2 });
+    }
+    return { name, positions, lines, batterBase, ...(data.batterOut ? { batterOut: true } : {}) };
+  }
+
+  function validatePlay(data) {
+    if (!record(data)) return null;
+    const drill = drills.get(data.scenarioId);
+    const firstPop = drill?.id === 'drill-first-pop';
+    const legacyPop = firstPop && data.practiceRevision === undefined;
+    const retiredBranch = legacyPop && data.practiceVariant === 'tag';
+    if (drill ? !retiredBranch && !drill.variants.some(item => item.id === data.practiceVariant) : !presets.some(p => p.id === data.scenarioId)) return null;
+    const title = cleanText(data.title, 100);
+    if (data.batter !== undefined && typeof data.batter !== 'boolean') return null;
+    if (data.runTarget != null && (!Number.isInteger(data.runTarget) || !bounded(data.runTarget, 1, 4))) return null;
+    if (!title || !Number.isInteger(data.inning) || !bounded(data.inning, 1, 99)) return null;
+    if (!['top', 'bottom'].includes(data.half) || !Number.isInteger(data.outs) || !bounded(data.outs, 0, 2)) return null;
+    if (!Array.isArray(data.bases) || data.bases.length !== 3 ||
+        ![0, 1, 2].every(index => typeof data.bases[index] === 'boolean')) return null;
+    if (!Array.isArray(data.frames) || !data.frames.length || data.frames.length > 100) return null;
+    const frames = [];
+    for (const dataFrame of data.frames) {
+      const checked = validFrame(dataFrame);
+      if (!checked) return null;
+      frames.push(checked);
+    }
+    let runTarget = data.runTarget;
+    if (runTarget === undefined) {
+      const authored = frames.some((entry, i) => i > 0 && batterMoves(frames[i - 1], entry));
+      runTarget = data.batter === true && !authored ? 1 : null;
+    }
+    const play = {
+      title, scenarioId: data.scenarioId, ...(drill ? { practiceVariant: data.practiceVariant } : {}), inning: data.inning, half: data.half,
+      outs: data.outs, batter: data.batter === true, runTarget, bases: [...data.bases], frames
+    };
+    if (legacyPop) {
+      // Upgrade an untouched example; retain hand-edited routes as an independent play.
+      const variants = retiredBranch ? [{ id: 'tag', title: '踩壘後跑向二壘' }] : drill.variants;
+      const group = window.PracticeCatalog.groups.find(g => g.id === drill.groupId);
+      const old = window.buildPracticePlay({ ...drill, variants }, group, play.practiceVariant, makePlay(), 1);
+      if (JSON.stringify(old.frames.map(validFrame)) === JSON.stringify(frames)) {
+        const updated = makePlay(drill.id, retiredBranch ? 'stay' : play.practiceVariant);
+        play.frames = updated.frames;
+        play.practiceVariant = updated.practiceVariant;
+        if (play.title === old.title) play.title = updated.title;
+      } else {
+        play.scenarioId = 'standard';
+        delete play.practiceVariant;
+        return play;
+      }
+    }
+    if (firstPop) play.practiceRevision = 2;
+    return play;
+  }
+
+  function interpolate(startFrame, endFrame, t) {
+    const progress = Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 0;
+    const result = {};
+    for (const { id } of players) {
+      const start = startFrame.positions[id];
+      const end = endFrame.positions[id];
+      result[id] = point(start.x + (end.x - start.x) * progress, start.y + (end.y - start.y) * progress);
+    }
+    return result;
+  }
+
+  const distance = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);
+  const different = (a, b) => a.x !== b.x || a.y !== b.y;
+  const unit = value => Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
+
+  function batterMoves(a, b) {
+    return different(a.positions.BR, b.positions.BR) || b.batterBase > a.batterBase;
+  }
+
+  function ballSegments(frames) {
+    const moving = [];
+    for (let i = 0; i < frames.length - 1; i++) {
+      if (different(frames[i].positions.B, frames[i + 1].positions.B)) moving.push(i);
+    }
+    if (moving.length < 2) return moving;
+    const first = moving[0];
+    const before = frames[first].positions.B, after = frames[first + 1].positions.B;
+    const home = batterStops[4];
+    const openingPitch = distance(before, original.P) <= 75 && distance(after, home) <= 55
+      && distance(before, home) - distance(after, home) >= 30;
+    if (openingPitch) {
+      const contact = moving.findIndex(i => i > first && distance(frames[i].positions.B, home) <= 65
+        && distance(frames[i + 1].positions.B, home) - distance(frames[i].positions.B, home) >= 15);
+      if (contact >= 0) return moving.slice(contact);
+    }
+    return moving;
+  }
+
+  function trace(points) {
+    const offsets = [0];
+    for (let i = 1; i < points.length; i++) offsets.push(offsets[i - 1] + distance(points[i - 1], points[i]));
+    const length = offsets[offsets.length - 1];
+    function sample(progress) {
+      if (progress <= 0 || length === 0) return { ...points[0] };
+      if (progress >= 1) return { ...points[points.length - 1] };
+      const traveled = progress * length;
+      let low = 1, high = points.length - 1;
+      while (low < high) {
+        const mid = Math.floor((low + high) / 2);
+        if (offsets[mid] < traveled) low = mid + 1;
+        else high = mid;
+      }
+      const a = points[low - 1], b = points[low];
+      const part = (traveled - offsets[low - 1]) / (offsets[low] - offsets[low - 1]);
+      return point(a.x + (b.x - a.x) * part, a.y + (b.y - a.y) * part);
+    }
+    return { sample, offsets, length };
+  }
+
+  function authoredTrace(frames, first, last) {
+    const points = [frames[first].positions.BR];
+    for (let i = first + 1; i <= last; i++) {
+      const position = frames[i].positions.BR;
+      if (different(points[points.length - 1], position)) points.push(position);
+    }
+    // A direct move to a later bag may skip unrecorded touches. Insert the missing
+    // bases in order with the smallest detour from the coach's existing waypoints.
+    if (frames[last].batterBase > frames[first].batterBase) {
+      if (points.length === 1) points.push(points[0]);
+      let begin = 1;
+      for (let base = frames[first].batterBase + 1; base <= frames[last].batterBase; base++) {
+        const stop = batterStops[base];
+        const existing = points.findIndex((p, i) => i >= begin && !different(p, stop));
+        if (existing >= begin) {
+          begin = existing + 1;
+          if (begin === points.length && base < frames[last].batterBase) points.push(points[existing]);
+          continue;
+        }
+        let insertion = begin, shortest = Infinity;
+        for (let i = begin; i < points.length; i++) {
+          const a = points[i - 1], b = points[i];
+          const extra = distance(a, stop) + distance(stop, b) - distance(a, b);
+          if (extra < shortest) { insertion = i; shortest = extra; }
+        }
+        points.splice(insertion, 0, stop);
+        begin = insertion + 1;
+      }
+    }
+    return trace(points).sample;
+  }
+
+  function manualRunner(frames, movingBall) {
+    const start = frames[0].positions.BR;
+    let first = -1, last = 0;
+    for (let i = 1; i < frames.length; i++) {
+      if (batterMoves(frames[i - 1], frames[i])) {
+        if (first < 0) first = i - 1;
+        last = i;
+      }
+    }
+    if (first < 0) return () => ({ ...start });
+    first = Math.min(first, movingBall[0] ?? 0);
+    const perSegment = [];
+    let from = first;
+    for (let i = first + 1; i <= last; i++) {
+      if (i !== last && frames[i].batterBase === frames[i - 1].batterBase) continue;
+      const sample = authoredTrace(frames, from, i);
+      const segmentStart = from, duration = i - from;
+      const run = time => sample((time - segmentStart) / duration);
+      for (let j = from; j < i; j++) perSegment[j] = run;
+      from = i;
+    }
+    return time => {
+      if (time <= first) return { ...start };
+      if (time >= last) return { ...frames[last].positions.BR };
+      return perSegment[Math.floor(time)](time);
+    };
+  }
+
+  function sampleBatter(frames, segment, progress) {
+    if (!frames.length) return null;
+    const run = manualRunner(frames, ballSegments(frames));
+    const i = Number.isFinite(segment) ? Math.max(0, Math.floor(segment)) : 0;
+    return run(i + unit(progress));
+  }
+
+  function buildPlayback(play) {
+    const frames = play.frames;
+    const first = frames[0];
+    const leadRunners = drills.has(play.scenarioId)
+      ? ['R1', 'R2', 'R3'].filter((id, base) => play.bases[base]) : [];
+    const movingBall = ballSegments(frames);
+    let stepMs = 1600;
+    const ballTravelMs = 1080;
+    let runner;
+    let baseAt = () => first.batterBase;
+    if (!play.batter) {
+      runner = () => ({ ...first.positions.BR });
+    } else if (play.runTarget == null) {
+      runner = manualRunner(frames, movingBall);
+      baseAt = time => frames[Math.min(frames.length - 1, Math.floor(time))].batterBase;
+    } else if (!movingBall.length || first.batterBase >= play.runTarget) {
+      runner = () => ({ ...first.positions.BR });
+    } else {
+      const points = [first.positions.BR, ...batterStops.slice(first.batterBase + 1, play.runTarget + 1)];
+      const route = trace(points);
+      const begin = movingBall[0], end = movingBall[movingBall.length - 1] + 1;
+      const basesToRun = play.runTarget - first.batterBase;
+      stepMs = Math.max(stepMs, Math.ceil(3000 * basesToRun / movingBall.length));
+      const progress = time => unit((time - begin) / (end - begin));
+      runner = time => route.sample(progress(time));
+      baseAt = time => {
+        if (time <= begin) return first.batterBase;
+        const traveled = route.length * progress(time);
+        let reached = first.batterBase;
+        for (let j = 1; j < route.offsets.length && traveled + 1e-8 >= route.offsets[j]; j++) reached++;
+        return reached;
+      };
+    }
+    function frameIndex(segmentIndex) {
+      const requested = Number.isFinite(segmentIndex) ? Math.floor(segmentIndex) : 0;
+      return Math.min(frames.length - 1, Math.max(0, requested));
+    }
+    function positionsAt(segmentIndex, fraction) {
+      const i = frameIndex(segmentIndex);
+      const next = Math.min(frames.length - 1, i + 1);
+      const portion = unit(fraction);
+      const travel = unit(portion * stepMs / ballTravelMs);
+      const positions = interpolate(frames[i], frames[next], travel * travel * (3 - 2 * travel));
+      // Practice runners can keep advancing while a fielder has the ball.
+      // Identical successive positions mark a deliberate read, retouch or hold.
+      for (const id of leadRunners) {
+        const a = frames[i].positions[id], b = frames[next].positions[id];
+        positions[id] = point(a.x + (b.x - a.x) * portion, a.y + (b.y - a.y) * portion);
+      }
+      positions.BR = runner(i + (next === i ? 0 : portion));
+      return positions;
+    }
+    function batterBaseAt(segmentIndex, fraction) {
+      const t = Math.min(frames.length - 1, frameIndex(segmentIndex) + unit(fraction));
+      return baseAt(t);
+    }
+    return { stepMs, ballTravelMs, positionsAt, batterBaseAt };
+  }
+
+  window.TacticsModel = { players, presets, batterStops, clone, makePlay, validatePlay, interpolate, sampleBatter, buildPlayback };
+})();
+</script>
+<script>(() => {
+  'use strict';
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const nodes = new Map();
+  const bounds = { width: 1000, height: 620 };
+  let api, field, tokens, routes;
+  let selected = null;
+  let gesture = null;
+  let pending = null;
+  let context = null;
+  let visibleLines = [];
+
+  function svg(name, attributes, parent) {
+    const element = document.createElementNS(svgNS, name);
+    for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+    parent.appendChild(element);
+    return element;
+  }
+
+  function addToken(player) {
+    const ball = player.kind === 'ball';
+    const runner = player.kind === 'runner';
+    const batter = player.kind === 'batter';
+    const radius = ball ? 12 : 20;
+    const group = svg('g', {
+      'data-player': player.id, role: 'button', tabindex: 0,
+      'aria-label': player.name + '。使用方向鍵調整位置，按住 Shift 可加大移動距離。'
+    }, tokens);
+    svg('title', {}, group).textContent = player.name;
+    svg('circle', { r: radius + 6, fill: 'transparent' }, group);
+    const ring = svg('circle', {
+      r: radius + 4, fill: 'none', stroke: '#ffe37e', 'stroke-width': 2.7, visibility: 'hidden'
+    }, group);
+    if (batter) {
+      const plate = 'M -15 -17 H 15 Q 18 -17 18 -14 V 6 L 2 20 Q 0 22 -2 20 L -18 6 V -14 Q -18 -17 -15 -17 Z';
+      svg('path', { d: plate, transform: 'translate(0 3)', fill: '#10291e', opacity: '.35' }, group);
+      svg('path', { d: plate, fill: '#91502a', stroke: '#ffe3ad', 'stroke-width': 2.8 }, group);
+    } else {
+      svg('circle', { r: radius + 1, cy: 2.8, fill: '#10291e', opacity: '.32' }, group);
+      svg('circle', {
+        r: radius, fill: runner ? '#b94f26' : '#fcf6dc',
+        stroke: runner ? '#ffe1a3' : '#214936', 'stroke-width': ball ? 1.8 : 2.8
+      }, group);
+    }
+    if (ball) {
+      const seams = svg('g', {
+        fill: 'none', stroke: '#b84d3b', 'stroke-width': 1.15,
+        'stroke-linecap': 'round', transform: 'rotate(-24)'
+      }, group);
+      svg('path', {
+        d: 'M -5 -10 Q -1 -5 -6 0 T -8 8 M 5 -10 Q 3 -6 6 0 T 7 9'
+      }, seams);
+      svg('path', {
+        d: 'M -6.1 -7.9 l 2.1 -.7 M -5.3 -4.8 l 2.1 .5 M -6.2 -1.1 l 1.9 1.1 M -8.6 3.1 l 2.1 1 M -9.2 6.5 l 1.9 .1 M 4.1 -7.8 l 1.9 .2 M 4 -4.6 l 2 -.6 M 5.1 -1 l 1.9 -.9 M 6.3 2.3 l 2 -.6 M 6.7 6.2 l 1.9 .4',
+        'stroke-width': .85
+      }, seams);
+    } else {
+      svg('text', {
+        y: batter ? -1 : 1, fill: runner || batter ? '#fff7e3' : '#203e2e', 'font-size': 18,
+        'font-family': 'Barlow, Arial, Microsoft JhengHei, sans-serif', 'font-weight': 800,
+        'text-anchor': 'middle', 'dominant-baseline': 'middle', 'pointer-events': 'none'
+      }, group).textContent = batter ? '打' : player.label;
+    }
+    group.addEventListener('focus', () => ring.setAttribute('visibility', 'visible'));
+    group.addEventListener('blur', () => ring.setAttribute('visibility', selected === player.id ? 'visible' : 'hidden'));
+    nodes.set(player.id, { group, ring });
+  }
+
+  const frameNow = () => api.getPlay().frames[api.getIndex()];
+  const positionsNow = () => api.getPositions?.() || frameNow().positions;
+  const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  function clamp(point, margin = 0) {
+    return {
+      x: Math.round(Math.max(margin, Math.min(bounds.width - margin, point.x))),
+      y: Math.round(Math.max(margin, Math.min(bounds.height - margin, point.y)))
+    };
+  }
+
+  function localPoint(event) {
+    const point = field.createSVGPoint();
+    point.x = event.clientX;
+    point.y = event.clientY;
+    return clamp(point.matrixTransform(field.getScreenCTM().inverse()));
+  }
+
+  function visible(player) {
+    if (player.kind === 'batter') return api.getPlay().batter && !api.isBatterOut?.();
+    return player.kind !== 'runner' || api.getPlay().bases[Number(player.id.slice(1)) - 1];
+  }
+
+  function release() {
+    const id = gesture?.pointer;
+    gesture = null;
+    if (id !== undefined && field.hasPointerCapture(id)) field.releasePointerCapture(id);
+  }
+
+  function clear() {
+    release();
+    selected = null;
+    pending = null;
+  }
+
+  function drawLine(line, positions, draft = false, index = -1) {
+    const a = { x: line.x1, y: line.y1 }, b = { x: line.x2, y: line.y2 };
+    const length = distance(a, b);
+    if (length < 5) return;
+    const dx = (b.x - a.x) / length, dy = (b.y - a.y) / length;
+    // Keep arrowheads outside occupied markers, including a ball held beside a fielder.
+    const inset = (p, direction) => {
+      let padding = 0;
+      for (const player of window.TacticsModel.players) {
+        if (!visible(player)) continue;
+        const center = positions[player.id];
+        const vx = center.x - p.x, vy = center.y - p.y;
+        const radius = player.kind === 'ball' ? 15 : 23;
+        if (Math.hypot(vx, vy) > radius) continue;
+        const along = (vx * dx + vy * dy) * direction;
+        const across = vx * dy - vy * dx;
+        padding = Math.max(padding, along + Math.sqrt(Math.max(0, radius * radius - across * across)));
+      }
+      return Math.min(padding, length * .36);
+    };
+    const startPad = inset(a, 1), endPad = inset(b, -1);
+    const start = { x: a.x + dx * startPad, y: a.y + dy * startPad };
+    const end = { x: b.x - dx * endPad, y: b.y - dy * endPad };
+    const head = Math.min(13, (length - startPad - endPad) * .45);
+    const back = { x: end.x - dx * head, y: end.y - dy * head };
+    const isThrow = line.type === 'throw';
+    const color = isThrow ? '#fff7df' : '#ffcf65';
+    const dash = isThrow ? '9 8' : 'none';
+    const group = svg('g', { opacity: draft ? '.72' : '1', 'pointer-events': 'none' }, routes);
+    if (index >= 0 && api.getMode() === 'erase') {
+      group.setAttribute('data-route', index);
+      group.setAttribute('tabindex', 0);
+      group.setAttribute('role', 'button');
+      group.setAttribute('aria-label', '刪除第 ' + (index + 1) + ' 條' + (isThrow ? '傳球線' : '跑位線'));
+      group.addEventListener('focus', () => { group.style.filter = 'drop-shadow(0 0 5px #fff4a2)'; });
+      group.addEventListener('blur', () => { group.style.filter = ''; });
+      visibleLines.push({ index, start, end });
+    }
+    const path = 'M ' + start.x + ' ' + start.y + ' L ' + back.x + ' ' + back.y;
+    svg('path', { d: path, fill: 'none', stroke: '#203b2c', 'stroke-width': 6.3, opacity: '.65', 'stroke-dasharray': dash, 'stroke-linecap': 'round' }, group);
+    svg('path', { d: path, fill: 'none', stroke: color, 'stroke-width': 3.5, 'stroke-dasharray': dash, 'stroke-linecap': 'round' }, group);
+    svg('path', {
+      d: 'M ' + end.x + ' ' + end.y + ' L ' + (back.x - dy * head * .5) + ' ' + (back.y + dx * head * .5)
+        + ' L ' + (back.x + dy * head * .5) + ' ' + (back.y - dx * head * .5) + ' Z',
+      fill: color, stroke: '#294432', 'stroke-width': 1, 'stroke-linejoin': 'round'
+    }, group);
+  }
+
+  function render(positionsOverride = null) {
+    if (!api) return;
+    const frame = frameNow(), mode = api.getMode();
+    if (!context || context.frame !== frame || context.mode !== mode) clear();
+    context = { frame, mode };
+    const positions = { ...(positionsOverride || positionsNow()) };
+    if (gesture?.drag && gesture.id) positions[gesture.id] = gesture.preview;
+    const play = api.getPlay();
+    const coverLabel = document.getElementById('cover-label');
+    const cover = positions['2B'];
+    const sharedBag = play.scenarioId === 'drill-first-pop' && play.bases[0] && distance(cover, positions.R1) < 32;
+    coverLabel.setAttribute('visibility', sharedBag ? 'visible' : 'hidden');
+    if (sharedBag) coverLabel.setAttribute('transform', 'translate(' + cover.x + ' ' + cover.y + ')');
+    for (const player of window.TacticsModel.players) {
+      const { group, ring } = nodes.get(player.id);
+      const shown = visible(player);
+      if (!shown && selected === player.id) selected = null;
+      group.style.display = shown ? '' : 'none';
+      group.style.cursor = mode === 'select' ? 'grab' : mode === 'playback' ? 'default' : 'crosshair';
+      group.setAttribute('tabindex', shown && mode !== 'playback' && mode !== 'erase' ? 0 : -1);
+      group.setAttribute('transform', 'translate(' + positions[player.id].x + ' ' + positions[player.id].y + ')');
+      group.setAttribute('aria-pressed', selected === player.id ? 'true' : 'false');
+      ring.setAttribute('visibility', selected === player.id || document.activeElement === group ? 'visible' : 'hidden');
+    }
+    field.style.cursor = mode === 'select' || mode === 'playback' ? 'default' : 'crosshair';
+    routes.replaceChildren();
+    visibleLines = [];
+    frame.lines.forEach((line, index) => drawLine(line, positions, false, index));
+    const start = pending?.start || gesture?.start;
+    const end = gesture?.current || pending?.current;
+    if (start && (mode === 'move' || mode === 'throw')) {
+      if (end) drawLine({ type: mode, x1: start.x, y1: start.y, x2: end.x, y2: end.y }, positions, true);
+      svg('circle', { cx: start.x, cy: start.y, r: 6, fill: 'none', stroke: '#ffe08a', 'stroke-width': 2 }, routes);
+    }
+  }
+
+  function putToken(id, point) {
+    const dest = clamp(point, id === 'B' ? 13 : 22);
+    const index = api.getIndex();
+    if (distance(positionsNow()[id], dest) < 1) { render(); return; }
+    api.commit(play => {
+      if (id === 'BR') api.makeBatterManual?.(play);
+      const frame = play.frames[index];
+      frame.positions[id] = dest;
+      if (id === 'BR') {
+        const stops = window.TacticsModel.batterStops;
+        const near = stop => distance(dest, stops[stop]) <= 32;
+        const reached = [1, 2, 3].find(near);
+        if (reached) frame.batterBase = reached;
+        else if (frame.batterBase >= 3 && near(4)) frame.batterBase = 4;
+        else if (frame.batterBase < 3 && (near(0) || near(4))) frame.batterBase = 0;
+      }
+    });
+  }
+
+  function addRoute(start, end) {
+    if (distance(start, end) < 6) { pending = { start }; render(); return; }
+    if (frameNow().lines.length >= 200) {
+      api.notify('這個步驟已達 200 條路線。');
+      pending = null;
+      render();
+      return;
+    }
+    const index = api.getIndex(), type = api.getMode();
+    pending = null;
+    api.commit(play => { play.frames[index].lines.push({ type, x1: start.x, y1: start.y, x2: end.x, y2: end.y }); });
+  }
+
+  function erase(index) {
+    const frameIndex = api.getIndex();
+    api.commit(play => { play.frames[frameIndex].lines.splice(index, 1); });
+    api.notify('已移除路線。');
+  }
+
+  function eraseAt(point, pointerType) {
+    const scale = field.getScreenCTM().a || 1;
+    let nearest = -1, threshold = (pointerType === 'touch' ? 16 : 9) / scale;
+    for (const { start, end, index } of visibleLines) {
+      const dx = end.x - start.x, dy = end.y - start.y;
+      const projection = ((point.x - start.x) * dx + (point.y - start.y) * dy) / (dx * dx + dy * dy || 1);
+      const fraction = Math.max(0, Math.min(1, projection));
+      const d = Math.hypot(start.x + dx * fraction - point.x, start.y + dy * fraction - point.y);
+      if (d <= threshold) { nearest = index; threshold = d; }
+    }
+    if (nearest >= 0) erase(nearest);
+  }
+
+  function pointerDown(event) {
+    const mode = api.getMode();
+    if (mode === 'playback' || gesture || event.button !== 0) return;
+    const point = localPoint(event);
+    const marker = event.target.closest('[data-player]');
+    const id = marker?.getAttribute('data-player');
+    if (mode === 'select' && !id && !selected) return;
+    event.preventDefault();
+    if (marker && mode !== 'erase') marker.focus({ preventScroll: true });
+    if (mode === 'select' && id) selected = id;
+    gesture = {
+      pointer: event.pointerId, start: point, current: point,
+      screenX: event.clientX, screenY: event.clientY, id: mode === 'select' ? id : null,
+      origin: id ? positionsNow()[id] : null, drag: false
+    };
+    field.setPointerCapture(event.pointerId);
+    render();
+  }
+
+  function updateGesture(event) {
+    gesture.current = localPoint(event);
+    gesture.drag ||= Math.hypot(event.clientX - gesture.screenX, event.clientY - gesture.screenY) >= 4;
+    if (gesture.drag && gesture.id) {
+      gesture.preview = clamp({
+        x: gesture.origin.x + gesture.current.x - gesture.start.x,
+        y: gesture.origin.y + gesture.current.y - gesture.start.y
+      }, gesture.id === 'B' ? 13 : 22);
+    }
+  }
+
+  function pointerMove(event) {
+    if (api.getMode() === 'playback') return;
+    if (gesture?.pointer === event.pointerId) {
+      updateGesture(event);
+      render();
+    } else if (!gesture && pending && event.pointerType !== 'touch') {
+      pending.current = localPoint(event);
+      render();
+    }
+  }
+
+  function pointerUp(event) {
+    if (gesture?.pointer !== event.pointerId) return;
+    updateGesture(event);
+    const action = gesture;
+    release();
+    const mode = api.getMode();
+    if (mode === 'playback') return;
+    if (mode === 'erase') {
+      if (!action.drag) eraseAt(action.current, event.pointerType);
+      return;
+    }
+    if (mode === 'select') {
+      if (action.id && action.drag) putToken(action.id, action.preview);
+      else if (!action.id && selected) {
+        const id = selected;
+        selected = null;
+        putToken(id, action.current);
+      } else render();
+    } else if (pending || action.drag) {
+      addRoute(pending?.start || action.start, action.current);
+    } else {
+      pending = { start: action.start };
+      render();
+    }
+  }
+
+  function keyDown(event) {
+    if (api.getMode() === 'playback') return;
+    if (api.getMode() === 'erase') {
+      const target = event.target.closest('[data-route]');
+      if (target && [' ', 'Enter', 'Delete', 'Backspace'].includes(event.key)) {
+        event.preventDefault();
+        const index = Number(target.getAttribute('data-route'));
+        erase(index);
+        const remaining = routes.querySelectorAll('[data-route]');
+        const next = remaining[Math.min(index, remaining.length - 1)];
+        if (next) next.focus({ preventScroll: true });
+        else {
+          field.setAttribute('tabindex', '-1');
+          field.focus({ preventScroll: true });
+        }
+      }
+      return;
+    }
+    const id = event.target.closest('[data-player]')?.getAttribute('data-player');
+    if (!id) return;
+    const pos = positionsNow()[id];
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      if (api.getMode() === 'select') selected = selected === id ? null : id;
+      else if (pending) { addRoute(pending.start, pos); return; }
+      else {
+        pending = { start: { ...pos } };
+        api.notify('已設定起點。移到目的球員後，再按 Enter 完成路線。');
+      }
+      render();
+      return;
+    }
+    const offsets = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+    const offset = offsets[event.key];
+    if (!offset || api.getMode() !== 'select') return;
+    event.preventDefault();
+    selected = id;
+    const step = event.shiftKey ? 15 : 3;
+    putToken(id, { x: pos.x + offset[0] * step, y: pos.y + offset[1] * step });
+  }
+
+  function cancelGesture() {
+    clear();
+    render();
+  }
+
+  function init(options) {
+    api = options;
+    field = document.getElementById('field');
+    tokens = document.getElementById('tokens');
+    routes = document.getElementById('routes');
+    const players = window.TacticsModel.players;
+    for (const player of players) if (player.kind !== 'ball') addToken(player);
+    addToken(players.find(player => player.kind === 'ball'));
+    field.addEventListener('pointerdown', pointerDown);
+    field.addEventListener('pointermove', pointerMove);
+    field.addEventListener('pointerup', pointerUp);
+    for (const eventName of ['pointercancel', 'lostpointercapture']) {
+      field.addEventListener(eventName, event => { if (gesture?.pointer === event.pointerId) cancelGesture(); });
+    }
+    field.addEventListener('keydown', keyDown);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && (gesture || pending || selected)) cancelGesture();
+    });
+    render();
+  }
+
+  window.FieldBoard = { init, render, cancelGesture };
+})();
+</script>
+<script>(() => {
+  'use strict';
+
+  const libraryKey = 'diamond-tactics.library.v1';
+  const draftKey = 'diamond-tactics.draft.v1';
+  const maxPlayBytes = 4 * 1024 * 1024;
+  const model = () => window.TacticsModel;
+  const app = () => window.BoardApp;
+  const modal = () => document.getElementById('modal');
+
+  function element(tag, className = '', text = '') {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text) node.textContent = text;
+    return node;
+  }
+
+  function button(text, action, className = 'btn') {
+    const node = element('button', className, text);
+    node.type = 'button';
+    node.addEventListener('click', action);
+    return node;
+  }
+
+  function view(title) {
+    const dialog = modal();
+    const header = element('header', 'modal-head');
+    const heading = element('h2', '', title);
+    heading.id = 'dialog-title';
+    const close = button('×', () => dialog.close(), 'icon-btn');
+    close.setAttribute('aria-label', '關閉視窗');
+    close.style.fontSize = '22px';
+    header.append(heading, close);
+    const body = element('div', 'modal-body');
+    const footer = element('footer', 'modal-foot');
+    footer.style.flexWrap = 'wrap';
+    const status = element('p');
+    status.style.color = '#803e27';
+    status.setAttribute('role', 'alert');
+    status.hidden = true;
+    body.append(status);
+    dialog.replaceChildren(header, body, footer);
+    dialog.setAttribute('aria-labelledby', heading.id);
+    dialog.onclick = event => {
+      if (event.target === dialog) dialog.close();
+    };
+    if (!dialog.open) dialog.showModal();
+    close.focus();
+    return {
+      body, footer,
+      error(message) {
+        status.textContent = message;
+        status.hidden = false;
+        status.scrollIntoView({ block: 'nearest' });
+      }
+    };
+  }
+
+  function validateEntries(items) {
+    if (!Array.isArray(items) || items.length > 100) throw new Error('library');
+    return items.map(item => {
+      if (!item || typeof item.id !== 'string' || item.id.length > 80 ||
+          !Number.isFinite(item.time)) throw new Error('entry');
+      const play = model().validatePlay(item.play);
+      if (!play) throw new Error('play');
+      return { id: item.id, time: item.time, play };
+    });
+  }
+
+  function readSaved() {
+    return validateEntries(JSON.parse(localStorage.getItem(libraryKey) || '[]'));
+  }
+
+  function showConcepts() {
+    const list = document.getElementById('concept-list');
+    const count = document.getElementById('concept-count');
+    let entries;
+    try {
+      entries = validateEntries(JSON.parse(document.getElementById('concept-seed').textContent));
+    } catch {
+      list.replaceChildren(element('p', 'concept-empty', '無法讀取匯出的戰術資料。'));
+      count.textContent = '';
+      return;
+    }
+    count.textContent = entries.length ? entries.length + ' 個戰術 · 點選載入球場' : '';
+    list.replaceChildren();
+    for (const entry of entries) {
+      const play = entry.play;
+      const card = button('', () => {
+        if (app().loadPlay(play)) {
+          document.getElementById('field-panel').scrollIntoView({ block: 'start', behavior: 'instant' });
+          const heading = document.getElementById('field-heading');
+          heading.tabIndex = -1;
+          heading.focus({ preventScroll: true });
+          app().notify('已載入「' + play.title + '」');
+        }
+      }, 'concept-card');
+      card.dataset.conceptId = entry.id;
+      const bases = ['一', '二', '三'].filter((_, i) => play.bases[i]);
+      const situation = bases.length === 3 ? '滿壘' : bases.length ? bases.join('、') + '壘有人' : '壘上無人';
+      card.append(element('strong', 'concept-title', play.title),
+        element('span', 'concept-details', situation + ' · ' + play.outs + ' 出局 · ' + play.frames.length + ' 個步驟'));
+      list.append(card);
+    }
+    if (!entries.length) list.append(element('p', 'concept-empty', '目前沒有已匯出的戰術。'));
+  }
+
+  function saveDraft() {
+    try {
+      const play = model().validatePlay(app().getPlay());
+      if (!play) return false;
+      localStorage.setItem(draftKey, JSON.stringify(play));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function restoreDraft() {
+    try {
+      const stored = localStorage.getItem(draftKey);
+      if (!stored || stored.length > maxPlayBytes) return null;
+      return model().validatePlay(JSON.parse(stored));
+    } catch {
+      return null;
+    }
+  }
+
+  function openHelp() {
+    const { body, footer } = view('操作說明');
+    const instructions = [
+      ['跑壘練習', '從「跑壘練習」選起始壘況與擊球類型，再播放推演。遇到有多種判斷的球，可以切換處理方式，比較跑者的第一步與最後停在哪一壘。'],
+      ['設定局面', '選擇守備範本，再設定局數、出局數與壘上跑者。'],
+      ['調整站位', '拖曳球員、跑者或棒球。使用跑位線與傳球線工具，在場上標出路線。'],
+      ['打者跑壘', '勾選「打者跑壘」並選擇目標壘包。在起始步驟把球放在本壘旁，新增步驟把球移到接球點；再新增步驟安排傳球。按「播放推演」，打者會隨擊球起跑，接球與轉傳期間持續往目標跑。拖曳「打」可改用手動跑線。'],
+      ['分步推演', '新增步驟後，移動球員與棒球到下一個位置。播放時會依序演示各步驟。'],
+      ['保存戰術', '為戰術命名並儲存，就能從戰術庫再次開啟。匯出 JSON 可將戰術帶到其他瀏覽器。']
+    ];
+    instructions.forEach(([label, detail]) => {
+      const text = element('p');
+      text.append(element('strong', '', label), document.createElement('br'), document.createTextNode(detail));
+      body.append(text);
+    });
+    footer.append(button('知道了', () => modal().close(), 'btn primary'));
+  }
+
+  function openSave() {
+    const current = model().validatePlay(app().getPlay());
+    if (!current) return app().notify('目前的戰術資料無法儲存。');
+    const { body, footer, error } = view('儲存戰術');
+    const label = element('label', '', '戰術名稱');
+    label.htmlFor = 'play-name';
+    const input = element('input', 'input');
+    input.id = label.htmlFor;
+    input.type = 'text';
+    input.maxLength = 100;
+    input.value = current.title;
+    body.append(label, input);
+    const save = () => {
+      const title = input.value.trim();
+      if (!title) {
+        error('請輸入戰術名稱。');
+        input.focus();
+        return;
+      }
+      try {
+        const saved = readSaved();
+        const matching = saved.find(item => item.play.title === title);
+        const play = { ...current, title };
+        if (matching) confirmReplacement(matching.id, play);
+        else commitSave(null, play, error);
+      } catch {
+        error('無法讀取本機戰術庫。你仍可從戰術庫匯出目前戰術。');
+      }
+    };
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && !event.isComposing) {
+        event.preventDefault();
+        save();
+      }
+    });
+    footer.append(button('取消', () => modal().close()), button('儲存', save, 'btn primary'));
+    input.focus();
+    input.select();
+  }
+
+  function confirmReplacement(id, play) {
+    const { body, footer, error } = view('取代同名戰術');
+    body.append(element('p', '', '戰術庫已有「' + play.title + '」。要用目前的內容取代它嗎？'));
+    footer.append(button('返回命名', openSave), button('取代戰術', () => commitSave(id, play, error), 'btn primary'));
+  }
+
+  function commitSave(id, play, error) {
+    try {
+      const saved = readSaved();
+      if (!id && saved.length >= 100) return error('戰術庫已滿。請先匯出備份並刪除較舊的戰術。');
+      const index = saved.findIndex(item => item.id === id);
+      if ((id && index < 0) || saved.some(item => item.play.title === play.title && item.id !== id)) {
+        return error('戰術庫已變更，請重新開啟儲存視窗。');
+      }
+      const key = id || (window.crypto?.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2));
+      const item = { id: key, time: Date.now(), play };
+      if (id) saved.splice(index, 1);
+      saved.unshift(item);
+      localStorage.setItem(libraryKey, JSON.stringify(saved));
+    } catch {
+      return error('本機儲存失敗。請檢查瀏覽器儲存空間，或從戰術庫匯出備份。');
+    }
+    app().setTitle(play.title);
+    saveDraft();
+    modal().close();
+    app().notify('已儲存「' + play.title + '」。');
+  }
+
+  function confirmDelete(id, title) {
+    const { body, footer, error } = view('刪除已存戰術');
+    body.append(element('p', '', '確定從本機戰術庫刪除「' + title + '」嗎？'));
+    footer.append(button('取消', openLibrary), button('確認刪除', () => {
+      try {
+        const items = readSaved();
+        localStorage.setItem(libraryKey, JSON.stringify(items.filter(item => item.id !== id)));
+      } catch {
+        return error('刪除失敗，請確認瀏覽器可使用本機儲存。');
+      }
+      openLibrary();
+      app().notify('已從戰術庫刪除。');
+    }, 'btn primary'));
+  }
+
+  function exportCurrent(error) {
+    try {
+      const play = model().validatePlay(app().getPlay());
+      if (!play) throw new Error('play');
+      const url = URL.createObjectURL(new Blob([JSON.stringify(play, null, 2)], { type: 'application/json' }));
+      const link = element('a');
+      link.href = url;
+      link.download = (play.title.replace(/[<>:"/\\|?*]/g, '_') || '戰術') + '.json';
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      app().notify('已匯出目前戰術。');
+    } catch {
+      error('無法匯出目前戰術。');
+    }
+  }
+
+  async function importFile(file, error) {
+    if (!file) return;
+    if (file.size > maxPlayBytes) return error('檔案過大，請選擇 4 MB 以內的戰術 JSON。');
+    try {
+      const contents = await file.text();
+      const play = model().validatePlay(JSON.parse(contents.replace(/^\uFEFF/, '')));
+      if (!play) throw new Error('play');
+      app().loadPlay(play);
+      modal().close();
+      app().notify('已開啟匯入的戰術，可使用「儲存戰術」加入戰術庫。');
+    } catch {
+      error('無法讀取這個檔案，請選擇由此戰術板匯出的 JSON。');
+    }
+  }
+
+  function openLibrary() {
+    const { body, footer, error } = view('我的戰術庫');
+    try {
+      const saved = readSaved();
+      if (!saved.length) body.append(element('p', '', '尚未儲存戰術。完成推演後，選擇「儲存戰術」即可在這裡再次開啟。'));
+      const list = element('div', 'saved-list');
+      saved.forEach(item => {
+        const row = element('div', 'saved-row');
+        const info = element('div');
+        const meta = element('small', '', item.play.frames.length + ' 個步驟 · ' + new Date(item.time).toLocaleDateString('zh-TW'));
+        info.append(element('strong', '', item.play.title), document.createElement('br'), meta);
+        const open = button('開啟', () => {
+          app().loadPlay(model().clone(item.play));
+          modal().close();
+          app().notify('已開啟「' + item.play.title + '」。');
+        });
+        open.setAttribute('aria-label', '開啟「' + item.play.title + '」');
+        const remove = button('刪除', () => confirmDelete(item.id, item.play.title), 'text-btn');
+        remove.setAttribute('aria-label', '刪除「' + item.play.title + '」');
+        row.append(info, open, remove);
+        list.append(row);
+      });
+      body.append(list);
+    } catch {
+      error('無法讀取本機戰術庫。你仍可匯入備份或匯出目前的戰術。');
+    }
+    const file = element('input');
+    file.type = 'file';
+    file.accept = '.json,application/json';
+    file.hidden = true;
+    file.addEventListener('change', () => {
+      const selected = file.files[0];
+      file.value = '';
+      importFile(selected, error);
+    });
+    body.append(file);
+    footer.append(button('匯入 JSON', () => file.click()), button('匯出目前戰術', () => exportCurrent(error)));
+  }
+
+  window.BoardLibrary = { openHelp, openSave, openLibrary, saveDraft, restoreDraft, showConcepts };
+})();
+</script>
+<script>(() => {
+  'use strict';
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const baseNames = ['一壘', '二壘', '三壘'];
+  let api, catalog, library, active, groups, groupTitle, groupRules, caseList;
+  let selectedGroup, currentCase, currentVariant, locked = false;
+
+  function element(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text) node.textContent = text;
+    return node;
+  }
+
+  function svgPart(name, attrs, parent) {
+    const node = document.createElementNS(svgNS, name);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+    parent.append(node);
+  }
+
+  function diamond(group) {
+    const icon = document.createElementNS(svgNS, 'svg');
+    icon.setAttribute('viewBox', '0 0 38 28');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.classList.add('practice-diamond');
+    svgPart('path', { d: 'M 19 24 L 30 13 L 19 3 L 8 13 Z', fill: 'none', stroke: 'currentColor', opacity: '.6', 'stroke-width': '1.3' }, icon);
+    [[30, 13], [19, 3.5], [8, 13]].forEach(([cx, cy], index) => {
+      svgPart('rect', {
+        x: cx - 2.65, y: cy - 2.65, width: 5.3, height: 5.3, transform: 'rotate(45 ' + cx + ' ' + cy + ')',
+        fill: group.bases[index] ? 'var(--clay)' : 'var(--surface)', stroke: group.bases[index] ? 'var(--clay)' : 'currentColor'
+      }, icon);
+    });
+    svgPart('path', { d: 'M 17 22 h 4 v 2 l -2 1.6 l -2 -1.6 Z', fill: 'currentColor' }, icon);
+    return icon;
+  }
+
+  function rules(group) {
+    if (group.outs === 2) return '兩出局。預設滿壘，可在「比賽情境」調整起始壘位。';
+    return '觀察' + baseNames[group.focus - 1] + '跑者。適用於少於兩出局，預設 0 出局，可改為 1 出局。';
+  }
+
+  function showField() {
+    const panel = document.getElementById('field-panel');
+    if (!panel) return;
+    const heading = document.getElementById('field-heading');
+    if (heading) {
+      heading.setAttribute('tabindex', '-1');
+      heading.focus({ preventScroll: true });
+    }
+    const rect = panel.getBoundingClientRect();
+    if (rect.top < 0 || rect.top >= window.innerHeight) panel.scrollIntoView({ block: 'start', behavior: 'instant' });
+  }
+
+  function choose(drill, variantId, jump) {
+    if (locked) return;
+    const play = api.getPlay();
+    if (play.scenarioId !== drill.id || play.practiceVariant !== variantId) api.onLoad(drill.id, variantId);
+    if (jump) showField();
+  }
+
+  function displayGroup(group) {
+    selectedGroup = group.id;
+    for (const button of groups.children) button.setAttribute('aria-pressed', button.dataset.practiceGroup === group.id);
+    const entries = catalog.cases.filter(item => item.groupId === group.id);
+    groupTitle.textContent = group.shortTitle + '的擊球情境';
+    groupRules.textContent = rules(group);
+    caseList.replaceChildren();
+    for (const drill of entries) {
+      const button = element('button', 'practice-case');
+      button.type = 'button';
+      button.dataset.practiceCase = drill.id;
+      button.disabled = locked;
+      button.setAttribute('aria-pressed', currentCase === drill.id);
+      const titleRow = element('span', 'practice-case-top');
+      titleRow.append(element('strong', '', drill.title));
+      if (drill.variants.length > 1) titleRow.append(element('span', 'practice-branches', drill.variants.length + ' 個分支'));
+      const note = element('span', 'practice-case-note', drill.note);
+      button.append(titleRow, note);
+      button.addEventListener('click', () => {
+        const play = api.getPlay();
+        const variant = play.scenarioId === drill.id && drill.variants.some(v => v.id === play.practiceVariant)
+          ? play.practiceVariant : drill.variants[0].id;
+        choose(drill, variant, true);
+      });
+      caseList.append(button);
+    }
+  }
+
+  function buildActive(drill, group) {
+    active.replaceChildren();
+    active.setAttribute('aria-labelledby', 'practice-active-heading');
+    const header = element('div', 'panel-head');
+    const title = element('h2', '', '跑壘練習');
+    title.id = 'practice-active-heading';
+    const titleWrap = element('div', 'head-title');
+    titleWrap.append(diamond(group), title);
+    header.append(titleWrap);
+    const body = element('div', 'panel-body practice-active-body');
+    const context = element('p', 'practice-active-context', group.title);
+    const name = element('h3', 'practice-active-name', drill.title);
+    const note = element('p', 'practice-teaching', drill.note);
+    note.id = 'practice-note';
+    body.append(context, name, note);
+    if (drill.variants.length > 1) {
+      const label = element('label', 'field-label', '跑壘分支');
+      label.htmlFor = 'practice-variant';
+      const select = element('select', 'practice-select');
+      select.id = 'practice-variant';
+      for (const v of drill.variants) {
+        const option = element('option', '', v.title);
+        option.value = v.id;
+        select.append(option);
+      }
+      select.addEventListener('change', () => choose(drill, select.value, false));
+      const controls = element('div', 'practice-variation');
+      controls.append(label, select);
+      body.append(controls);
+    } else {
+      body.append(element('p', 'practice-only-variant', '跑壘選擇 · ' + drill.variants[0].title));
+    }
+    active.append(header, body);
+  }
+
+  function sync(play, playing = false) {
+    if (!api) return;
+    const drill = catalog.cases.find(item => item.id === play.scenarioId);
+    const changed = currentCase !== (drill?.id || null);
+    const wasLocked = locked;
+    locked = Boolean(playing);
+    currentCase = drill?.id || null;
+    currentVariant = drill ? (drill.variants.find(v => v.id === play.practiceVariant) || drill.variants[0]).id : null;
+    if (changed && drill) {
+      const group = catalog.groups.find(item => item.id === drill.groupId);
+      buildActive(drill, group);
+      if (selectedGroup !== group.id) displayGroup(group);
+    }
+    active.hidden = !drill;
+    const select = active.querySelector('#practice-variant');
+    if (drill && select) {
+      select.value = currentVariant;
+      select.disabled = locked;
+    }
+    if (changed || wasLocked !== locked) {
+      for (const button of caseList.children) {
+        button.disabled = locked;
+        button.setAttribute('aria-pressed', button.dataset.practiceCase === currentCase);
+      }
+    }
+  }
+
+  function init(options) {
+    api = options;
+    catalog = window.PracticeCatalog;
+    library = document.getElementById('practice-library');
+    active = document.getElementById('practice-active');
+    const heading = element('div', 'section-heading');
+    const h2 = element('h2', '', '跑壘練習');
+    h2.id = 'practice-heading';
+    heading.append(h2, element('p', '', catalog.cases.length + ' 個案例，先選壘況，再選擊球情境。'));
+    const panel = element('div', 'panel practice-picker');
+    groups = element('div', 'practice-groups');
+    groups.setAttribute('role', 'group');
+    groups.setAttribute('aria-label', '起始局面');
+    for (const group of catalog.groups) {
+      const button = element('button', 'practice-group');
+      button.type = 'button';
+      button.dataset.practiceGroup = group.id;
+      button.setAttribute('aria-label', group.title);
+      button.append(diamond(group), element('span', '', group.shortTitle));
+      button.addEventListener('click', () => { if (selectedGroup !== group.id) displayGroup(group); });
+      groups.append(button);
+    }
+    const content = element('div', 'practice-group-content');
+    groupTitle = element('h3', 'practice-group-title');
+    groupRules = element('p', 'practice-group-rules');
+    caseList = element('div', 'practice-cases');
+    content.append(groupTitle, groupRules, caseList);
+    panel.append(groups, content);
+    library.replaceChildren(heading, panel);
+    displayGroup(catalog.groups[0]);
+    sync(api.getPlay());
+  }
+
+  window.PracticeUI = { init, sync };
+})();
+</script>
+<script>(() => {
+  'use strict';
+
+  const { makePlay, clone, presets, buildPlayback, validatePlay } = window.TacticsModel;
+  const library = window.BoardLibrary;
+  const board = window.FieldBoard;
+  const byId = id => document.getElementById(id);
+  const all = selector => [...document.querySelectorAll(selector)];
+
+  const paths = {
+    board: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 16l3-3-2-3 5-3m1 7 3-3m-3 0h3v3"/>',
+    folder: '<path d="M3 8V6a2 2 0 012-2h5l2 3h7a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>',
+    templates: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 2-2.5 2.1-2.5 4.1m0 2.9h.01"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    save: '<path d="M5 3h11l4 4v13H4V4z"/><path d="M8 3v6h8V3M8 20v-7h8v7"/>',
+    diamond: '<path d="M2 9c2-4.5 6-7 10-7s8 2.5 10 7L12 21 2 9z"/><path d="m12 11 4 4-4 4-4-4z"/>',
+    expand: '<path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/>',
+    shrink: '<path d="M4 8h4V4m12 4h-4V4M8 20v-4H4m12 4v-4h4"/>',
+    pointer: '<path d="m5 3 14 10-7 1-3.6 6L5 3z"/>',
+    route: '<circle cx="5" cy="17.5" r="2"/><path d="m7 17.5 3-1c4-1.5-.5-6 2-8 1.5-1.2 4-1.5 7-1.5m-4-3 4 3-3 4"/>',
+    pass: '<path d="M3 18l2-1.5m2.8-2.1 2-1.5m3-2.2 6.8-5.1M14 5l6 .5-1 6"/>',
+    eraser: '<path d="m4 13 8-9a2 2 0 013 0l5 5a2 2 0 010 3l-7 8H9L4 15a1.5 1.5 0 010-2zm5-5 8 8m-6 4h10"/>',
+    undo: '<path d="M9 5 4 10l5 5M5 10h8a7 7 0 017 7"/>',
+    redo: '<path d="m15 5 5 5-5 5m4-5h-8a7 7 0 00-7 7"/>',
+    sliders: '<path d="M3 6h6m4 0h8M3 12h12m4 0h2M3 18h2m4 0h12"/><circle cx="11" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="7" cy="18" r="2"/>',
+    timeline: '<rect x="3" y="3" width="5" height="5" rx="1"/><rect x="3" y="15" width="5" height="5" rx="1"/><path d="M5.5 8v7M12 5.5h9M12 17.5h9"/>',
+    play: '<path d="m7 4 13 8-13 8z" fill="currentColor" stroke="none"/>',
+    pause: '<path d="M8 5v14m8-14v14" stroke-width="4"/>',
+    edit: '<path d="m4 16-.5 4.5L8 20l11-11-4-4L4 16zm9-9 4 4"/>',
+    close: '<path d="m6 6 12 12M18 6 6 18"/>'
+  };
+  function icon(key) {
+    return '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths[key] + '</svg>';
+  }
+  all('[data-icon]').forEach(node => { node.outerHTML = icon(node.dataset.icon); });
+
+  let play = library.restoreDraft() || makePlay('double');
+  let playback = buildPlayback(play);
+  let index = 0;
+  let mode = 'select';
+  let animation = null;
+  let timer = 0;
+  let draftUnavailable = false;
+  const undoStack = [];
+  const redoStack = [];
+  const snap = () => ({ play: clone(play), index });
+
+  function notify(message) {
+    byId('toast').textContent = message;
+    clearTimeout(timer);
+    timer = setTimeout(() => { byId('toast').textContent = ''; }, 2900);
+  }
+  function saveDraft() {
+    const saved = library.saveDraft();
+    if (!saved && !draftUnavailable) notify('瀏覽器無法儲存草稿，可從「我的戰術」匯出備份。');
+    draftUnavailable = !saved;
+  }
+  function stopPlayback() {
+    if (!animation) return;
+    cancelAnimationFrame(animation.raf);
+    animation = null;
+    render();
+  }
+  function commit(change) {
+    stopPlayback();
+    const before = snap();
+    change(play);
+    playback = buildPlayback(play);
+    undoStack.push(before);
+    if (undoStack.length > 45) undoStack.shift();
+    redoStack.length = 0;
+    index = Math.min(index, play.frames.length - 1);
+    render();
+    saveDraft();
+  }
+  function history(from, to) {
+    if (!from.length) return;
+    stopPlayback();
+    board.cancelGesture();
+    to.push(snap());
+    const previous = from.pop();
+    play = previous.play;
+    playback = buildPlayback(play);
+    index = previous.index;
+    render();
+    saveDraft();
+  }
+  function loadPlay(value) {
+    const checked = validatePlay(value);
+    if (!checked) return false;
+    board.cancelGesture();
+    commit(() => { play = checked; index = 0; mode = 'select'; });
+    return true;
+  }
+  window.BoardApp = {
+    getPlay: () => play, loadPlay, notify,
+    setTitle: title => { if (title !== play.title) commit(p => { p.title = title; }); }
+  };
+  function positionsForStep(step) {
+    if (!step || play.runTarget === null) return play.frames[step].positions;
+    return playback.positionsAt(step - 1, 1);
+  }
+  function makeBatterManual() {
+    if (play.runTarget === null) return;
+    // Retain the visible automatic positions when the coach edits a runner by hand.
+    for (let i = 1; i < play.frames.length; i++) {
+      const position = positionsForStep(i).BR;
+      play.frames[i].positions.BR = { ...position };
+      play.frames[i].batterBase = playback.batterBaseAt(i - 1, 1);
+    }
+    play.runTarget = null;
+  }
+  board.init({ getPlay: () => play, getIndex: () => index, getPositions: () => positionsForStep(index),
+    isBatterOut: () => animation ? animation.batterOut : play.frames[index].batterOut,
+    makeBatterManual, getMode: () => animation ? 'playback' : mode, commit, notify });
+  const practice = window.PracticeUI;
+  practice.init({
+    getPlay: () => play,
+    onLoad: (caseId, variantId) => {
+      const next = makePlay(caseId, variantId);
+      if (play.scenarioId === caseId) {
+        next.inning = play.inning;
+        next.half = play.half;
+        next.outs = play.outs;
+        next.bases = [...play.bases];
+      }
+      return loadPlay(next);
+    }
+  });
+
+  function press(selector, compare) {
+    all(selector).forEach(button => {
+      button.setAttribute('aria-pressed', String(compare(button)));
+      button.disabled = !!animation;
+    });
+  }
+  function updateSteps() {
+    const list = byId('step-list');
+    const focus = list.contains(document.activeElement) ? document.activeElement.dataset : null;
+    const scroll = list.scrollTop;
+    const fragment = document.createDocumentFragment();
+    play.frames.forEach((frame, i) => {
+      const entry = document.createElement('div');
+      entry.className = 'step-entry';
+      const row = document.createElement('button');
+      row.className = 'step-row' + (i === index ? ' active' : '');
+      if (i === index) row.setAttribute('aria-current', 'step');
+      row.dataset.index = i;
+      row.disabled = !!animation;
+      row.innerHTML = '<span class="step-num"></span><span class="step-copy"><strong></strong></span>';
+      row.querySelector('.step-num').textContent = String(i + 1).padStart(2, '0');
+      row.querySelector('strong').textContent = frame.name;
+      const edit = document.createElement('button');
+      edit.className = 'step-edit icon-btn';
+      edit.dataset.edit = i;
+      edit.title = '編輯第 ' + (i + 1) + ' 個步驟';
+      edit.setAttribute('aria-label', edit.title);
+      edit.disabled = !!animation;
+      edit.innerHTML = icon('edit');
+      entry.append(row, edit);
+      fragment.append(entry);
+    });
+    list.replaceChildren(fragment);
+    list.scrollTop = scroll;
+    if (focus) {
+      const key = focus.edit === undefined ? 'index' : 'edit';
+      list.querySelector('[data-' + key + '="' + focus[key] + '"]')?.focus({ preventScroll: true });
+    }
+    const active = list.children[index];
+    if (active && (active.offsetTop < list.scrollTop || active.offsetTop + active.offsetHeight > list.scrollTop + list.clientHeight)) {
+      list.scrollTop = active.offsetTop - Math.max(0, list.clientHeight - active.offsetHeight);
+    }
+  }
+  function render(positions = null) {
+    byId('play-title').textContent = play.title;
+    byId('play-title').title = play.title;
+    byId('inning-value').textContent = play.inning;
+    byId('inning-hud').textContent = (play.half === 'top' ? '▴ ' : '▾ ') + play.inning + ' 局' + (play.half === 'top' ? '上' : '下');
+    byId('outs-hud').textContent = (play.practiceVariant ? '起始 ' : '') + play.outs + ' 出局';
+    byId('drill-step-hud').hidden = !play.practiceVariant;
+    if (play.practiceVariant) byId('drill-step-hud').textContent = (index + 1) + ' / ' + play.frames.length + '　' + play.frames[index].name;
+    byId('inning-minus').disabled = !!animation || play.inning <= 1;
+    byId('inning-plus').disabled = !!animation || play.inning >= 99;
+    press('[data-half]', b => b.dataset.half === play.half);
+    press('[data-outs]', b => Number(b.dataset.outs) === play.outs);
+    press('[data-base]', b => play.bases[Number(b.dataset.base)]);
+    const batterToggle = byId('batter-toggle');
+    batterToggle.checked = play.batter;
+    batterToggle.disabled = !!animation;
+    const runTarget = byId('run-target');
+    runTarget.disabled = !!animation || !play.batter;
+    runTarget.value = play.runTarget === null ? 'manual' : String(play.runTarget);
+    byId('run-hint').textContent = !play.batter ? '' : play.runTarget === null
+      ? '播放時，打者會沿你設定的跑線與球同步移動。'
+      : '在不同步驟設定球的位置。播放時，打者會隨擊球起跑，依序繞壘。';
+    press('[data-mode]', b => b.dataset.mode === mode);
+    byId('field').dataset.mode = animation ? 'playback' : mode;
+    byId('undo').disabled = !!animation || !undoStack.length;
+    byId('redo').disabled = !!animation || !redoStack.length;
+    byId('add-step').disabled = !!animation || play.frames.length >= 100;
+    byId('frame-count').textContent = '步驟 ' + (index + 1) + ' / ' + play.frames.length;
+    const player = byId('play');
+    player.disabled = play.frames.length < 2;
+    player.innerHTML = animation && !animation.paused ? icon('pause') + '<span>暫停推演</span>'
+      : icon('play') + (animation ? '<span>繼續播放</span>' : '<span>播放推演</span>');
+    const fieldPlay = byId('field-play');
+    fieldPlay.hidden = play.frames.length < 2;
+    fieldPlay.innerHTML = player.innerHTML;
+    fieldPlay.setAttribute('aria-label', player.textContent);
+    byId('end-playback').hidden = !animation?.paused;
+    byId('timeline-tip').textContent = play.frames.length < 2 ? '新增下一個步驟，再拖曳球員設定跑位。' : '選取步驟可調整站位，播放時會依序移動。';
+    updateSteps();
+    practice.sync(play, !!animation);
+    board.render(positions);
+  }
+
+  function startPlayback() {
+    if (play.frames.length < 2) return;
+    if (animation && !animation.paused) {
+      cancelAnimationFrame(animation.raf);
+      animation.paused = true;
+      render(animation.positions);
+      return;
+    }
+    if (animation) {
+      animation.paused = false;
+      animation.start = performance.now() - animation.elapsed;
+    } else {
+      board.cancelGesture();
+      index = 0;
+      animation = { raf: 0, start: performance.now(), elapsed: 0, paused: false,
+        batterOut: !!play.frames[0].batterOut, positions: positionsForStep(0) };
+    }
+    render(animation.positions);
+    const stepTime = playback.stepMs;
+    function tick(time) {
+      if (!animation || animation.paused) return;
+      animation.elapsed = time - animation.start;
+      const elapsed = Math.max(0, animation.elapsed - 500);
+      const source = Math.floor(elapsed / stepTime);
+      if (source >= play.frames.length - 1) {
+        index = play.frames.length - 1;
+        stopPlayback();
+        return;
+      }
+      const target = elapsed === 0 ? 0 : source + 1;
+      const positions = playback.positionsAt(source, (elapsed % stepTime) / stepTime);
+      animation.batterOut = (elapsed % stepTime >= playback.ballTravelMs ? play.frames[source + 1] : play.frames[source]).batterOut;
+      animation.positions = positions;
+      if (target !== index) { index = target; render(positions); }
+      else board.render(positions);
+      animation.raf = requestAnimationFrame(tick);
+    }
+    animation.raf = requestAnimationFrame(tick);
+  }
+  const chooseMode = value => { board.cancelGesture(); mode = value; render(); };
+  all('[data-mode]').forEach(b => b.onclick = () => chooseMode(b.dataset.mode));
+  all('[data-half]').forEach(b => b.onclick = () => { if (play.half !== b.dataset.half) commit(p => { p.half = b.dataset.half; }); });
+  all('[data-outs]').forEach(b => b.onclick = () => { if (play.outs !== +b.dataset.outs) commit(p => { p.outs = +b.dataset.outs; }); });
+  all('[data-base]').forEach(b => b.onclick = () => commit(p => { const n = +b.dataset.base; p.bases[n] = !p.bases[n]; }));
+  byId('batter-toggle').onchange = event => {
+    const enabled = event.target.checked;
+    board.cancelGesture();
+    commit(p => { p.batter = enabled; });
+  };
+  byId('run-target').onchange = event => {
+    const value = event.target.value;
+    board.cancelGesture();
+    commit(p => {
+      if (value === 'manual') makeBatterManual();
+      else p.runTarget = Number(value);
+    });
+  };
+  byId('inning-minus').onclick = () => commit(p => { p.inning = Math.max(1, p.inning - 1); });
+  byId('inning-plus').onclick = () => commit(p => { p.inning = Math.min(99, p.inning + 1); });
+  byId('undo').onclick = () => history(undoStack, redoStack);
+  byId('redo').onclick = () => history(redoStack, undoStack);
+  byId('play').onclick = () => {
+    const willMove = !animation || animation.paused;
+    startPlayback();
+    if (willMove && matchMedia('(max-width: 850px)').matches) {
+      byId('field-panel').scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+  };
+  byId('field-play').onclick = startPlayback;
+  byId('end-playback').onclick = stopPlayback;
+  byId('new-play').onclick = () => {
+    const fresh = makePlay();
+    fresh.title = '未命名戰術';
+    loadPlay(fresh);
+    notify('已開啟新戰術，可用「復原」回到上一個戰術。');
+  };
+  byId('library').onclick = () => { stopPlayback(); library.openLibrary(); };
+  byId('help').onclick = () => { stopPlayback(); library.openHelp(); };
+  byId('save').onclick = () => { stopPlayback(); library.openSave(); };
+  byId('add-step').onclick = () => {
+    board.cancelGesture();
+    commit(p => {
+      const next = clone(p.frames[index]);
+      next.name = '步驟 ' + (index + 2);
+      next.lines = [];
+      p.frames.splice(++index, 0, next);
+    });
+    notify('已複製上一個站位，可開始調整這個步驟。');
+  };
+  const stepDialog = byId('step-dialog');
+  let editIndex = 0;
+  byId('step-list').onclick = event => {
+    const button = event.target.closest('button');
+    if (!button || button.disabled) return;
+    board.cancelGesture();
+    if (button.dataset.edit !== undefined) {
+      editIndex = +button.dataset.edit;
+      byId('step-name').value = play.frames[editIndex].name;
+      byId('step-delete').disabled = play.frames.length === 1;
+      stepDialog.showModal();
+      byId('step-name').select();
+    } else { index = +button.dataset.index; render(); }
+  };
+  byId('step-form').onsubmit = event => {
+    event.preventDefault();
+    const name = byId('step-name').value.trim();
+    if (!name) { byId('step-name').focus(); return; }
+    stepDialog.close();
+    if (name !== play.frames[editIndex].name) commit(p => { p.frames[editIndex].name = name; });
+  };
+  byId('step-close').onclick = () => stepDialog.close();
+  byId('step-delete').onclick = () => {
+    if (play.frames.length < 2) return;
+    stepDialog.close();
+    commit(p => { p.frames.splice(editIndex, 1); if (editIndex < index) index--; });
+    notify('已刪除步驟，可用「復原」取回。');
+  };
+  function expand(value) {
+    byId('field-panel').classList.toggle('is-expanded', value);
+    document.body.classList.toggle('field-expanded', value);
+    const button = byId('expand');
+    button.setAttribute('aria-pressed', String(value));
+    button.innerHTML = icon(value ? 'shrink' : 'expand');
+    button.title = value ? '還原球場大小' : '放大球場';
+    button.setAttribute('aria-label', button.title);
+    for (const node of [document.querySelector('.topbar'), document.querySelector('.page-head'), document.querySelector('.sidebar'), byId('important-concepts'), byId('practice-library'), byId('presets').parentElement]) node.inert = value;
+    button.focus({ preventScroll: true });
+  }
+  byId('expand').onclick = () => expand(!document.body.classList.contains('field-expanded'));
+  document.addEventListener('keydown', e => {
+    if (document.querySelector('dialog[open]') || e.target.matches('input, textarea, [contenteditable=true]')) return;
+    if (e.key === 'Escape') {
+      board.cancelGesture();
+      if (animation) stopPlayback();
+      if (document.body.classList.contains('field-expanded')) expand(false);
+    }
+    if (!animation && (e.ctrlKey || e.metaKey) && ['z', 'y'].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+      if (e.key.toLowerCase() === 'y' || e.shiftKey) history(redoStack, undoStack);
+      else history(undoStack, redoStack);
+    }
+  });
+
+  function miniature(id) {
+    const palettes = { standard: ['#dce8d7','#6f9670'], relay: ['#dce9e3','#77988a'], bunt: ['#f3e5cf','#bc8c59'], double: ['#e3e8e2','#829586'] };
+    const [base, stripe] = palettes[id];
+    const route = { standard: '', relay: 'M17 29l16 7 10 19', bunt: 'M43 54l-5-11 16-1', double: 'M33 37l10-10 13 15' }[id];
+    return '<svg viewBox="0 0 86 68" aria-hidden="true"><rect width="86" height="68" fill="' + base + '"/><path d="M7 26Q19 5 43 5t36 21L43 62Z" fill="' + stripe + '" opacity=".34"/><path d="M10 26Q21 8 43 8t33 18L43 58Z" fill="none" stroke="' + stripe + '" stroke-width="1.3"/><path d="M43 57 25 40q4-15 18-15t18 15z" fill="#d5b78f"/><path d="m43 32 11 11-11 11-11-11z" fill="' + stripe + '"/><path d="m18 30 25 26 25-26" fill="none" stroke="#fff8e7"/><path d="' + route + '" fill="none" stroke="#954f2d" stroke-width="2" stroke-dasharray="3 2"/>' + [[23,25],[43,16],[63,25],[33,36],[53,36],[27,42],[59,42],[43,44],[43,58]].map(([x,y]) => '<circle cx="' + x + '" cy="' + y + '" r="1.65" fill="#365842"/>').join('') + '</svg>';
+  }
+  for (const preset of presets) {
+    const button = document.createElement('button');
+    button.className = 'preset-card';
+    button.innerHTML = '<div class="preset-art">' + miniature(preset.id) + '</div><div class="preset-copy"><h3></h3><p></p></div>';
+    button.querySelector('h3').textContent = preset.title;
+    button.querySelector('p').textContent = preset.description;
+    button.onclick = () => {
+      loadPlay(makePlay(preset.id));
+      notify('已載入「' + preset.title + '」');
+      if (matchMedia('(max-width:850px)').matches) byId('field-panel').scrollIntoView({ block: 'start' });
+    };
+    byId('presets').append(button);
+  }
+  library.showConcepts();
+  render();
+})();
+</script>
+</body>
+</html>
