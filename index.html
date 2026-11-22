@@ -854,7 +854,7 @@ html:has(.team-intro[open]) { overflow: hidden; }
   add('first', 'deep', '先離一壘約一半距離，看外野手能否接住。確認球在界內落地後，繞過二壘跑向三壘。球被接住時，回踩後再決定推進或留在一壘。', ['advance', 'tag', 'stay']);
   add('first', 'foul', '深遠界外飛球有機會被接住時，在一壘踩壘看球。守備員首次觸球後，若距離足夠可跑向二壘，也可留在一壘。', ['tag', 'stay']);
 
-  add('second-open', 'pop', '一壘無人，二壘跑者先離壘三、四步看球。若在界內落地，判斷能否進三壘。若被接住，可回踩二壘再起跑，或留壘。', ['advance', 'tag', 'stay']);
+  add('second-open', 'pop', '一壘無人，二壘跑者先離壘三、四步看球。若在界內落地，判斷能否進三壘。若被接住，回踩並留在二壘。', ['advance', 'stay']);
   add('second-open', 'groundLeft', '二壘跑者沒有被迫進壘。追蹤左側滾地球與接球的野手，確認能安全抵達三壘才進壘。機會不足就留在二壘。', ['advance', 'stay']);
   add('second-open', 'groundRight', '球滾向內野右側，二壘跑者全速跑向三壘。', ['advance']);
   add('second-open', 'line', '從二壘離開三、四步觀察平飛球。球穿過守備、落在界內後可進三壘。若被接住，回踩後再進壘或留在二壘。', ['advance', 'tag', 'stay']);
