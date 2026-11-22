@@ -637,6 +637,7 @@ body.field-expanded { overflow: hidden; }
       if (id === 'run') return { id, title: '擊球即全速起跑' };
       if (id === 'stay') return { id, title: '留在' + baseNames[focus] };
       if (id === 'tag') return { id, title: '踩壘後跑向' + destination };
+      if (groupId === 'first' && kind === 'deep') return { id, title: '界內落地後跑向三壘' };
       const prefix = kind === 'groundLeft' || kind === 'groundRight' ? '推進至' : '界內落地後跑向';
       return { id, title: prefix + destination };
     }
@@ -647,7 +648,7 @@ body.field-expanded { overflow: hidden; }
   add('first', 'groundLeft', '球滾向三壘手或游擊手時，一壘跑者受迫進壘。立即全速跑向二壘。', ['advance']);
   add('first', 'groundRight', '球滾向一、二壘之間，一壘跑者受迫離壘，全速跑向二壘。', ['advance']);
   add('first', 'line', '先離一壘三、四步觀察平飛球，確認球穿越守備並在界內落地後，跑向二壘。', ['advance']);
-  add('first', 'deep', '先離一壘三、四步看外野手。球在界內落地後可進二壘。球被接住時，回踩後再決定推進或留在一壘。', ['advance', 'tag', 'stay']);
+  add('first', 'deep', '先離一壘約一半距離，看外野手能否接住。確認球在界內落地後，繞過二壘跑向三壘。球被接住時，回踩後再決定推進或留在一壘。', ['advance', 'tag', 'stay']);
   add('first', 'foul', '深遠界外飛球有機會被接住時，在一壘踩壘看球。守備員首次觸球後，若距離足夠可跑向二壘，也可留在一壘。', ['tag', 'stay']);
 
   add('second-open', 'pop', '一壘無人，二壘跑者先離壘三、四步看球。若在界內落地，判斷能否進三壘。若被接住，可回踩二壘再起跑，或留壘。', ['advance', 'tag', 'stay']);
@@ -725,6 +726,9 @@ body.field-expanded { overflow: hidden; }
     const play = copy(standardPlay);
     const choice = drill.variants.find(option => option.id === variantId) || drill.variants[0];
     const variant = choice.id;
+    if (drill.id === 'drill-first-deep' && variant === 'advance' && revision >= 2) {
+      return {"title":"一壘有人・深遠飛球・界內落地後跑向三壘","scenarioId":"drill-first-deep","practiceVariant":"advance","inning":1,"half":"top","outs":0,"batter":true,"runTarget":null,"bases":[true,false,false],"frames":[{"name":"踩穩原壘，準備讀球","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":500,"y":122},"RF":{"x":733,"y":206},"B":{"x":474,"y":508},"BR":{"x":520,"y":519},"R1":{"x":605,"y":392},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"離壘一半，先停下看球","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":513,"y":106},"RF":{"x":733,"y":206},"B":{"x":494,"y":329},"BR":{"x":544,"y":495},"R1":{"x":572,"y":358},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[{"type":"move","x1":620,"y1":418,"x2":596,"y2":394}],"batterBase":0},{"name":"維持一半，確認球的落點","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":527,"y":90},"RF":{"x":708,"y":192},"B":{"x":511,"y":183},"BR":{"x":567,"y":472},"R1":{"x":562,"y":348},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"球在界內落地，確認可以推進","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":523,"y":60},"RF":{"x":708,"y":192},"B":{"x":521,"y":91},"BR":{"x":586,"y":452},"R1":{"x":533,"y":303},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[{"type":"move","x1":492,"y1":295,"x2":419,"y2":365}],"batterBase":0},{"name":"野手撿球，跑者全速奔向三壘","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":587,"y":295},"3B":{"x":349,"y":382},"SS":{"x":413,"y":295},"LF":{"x":267,"y":206},"CF":{"x":553,"y":64},"RF":{"x":708,"y":192},"B":{"x":536,"y":78},"BR":{"x":604,"y":434},"R1":{"x":471,"y":314},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[],"batterBase":0},{"name":"打者安全上壘","positions":{"P":{"x":500,"y":421},"C":{"x":500,"y":569},"1B":{"x":651,"y":382},"2B":{"x":507,"y":302},"3B":{"x":379,"y":419},"SS":{"x":474,"y":238},"LF":{"x":267,"y":206},"CF":{"x":553,"y":64},"RF":{"x":708,"y":192},"B":{"x":480,"y":228},"BR":{"x":620,"y":418},"R1":{"x":423,"y":364},"R2":{"x":500,"y":271},"R3":{"x":363,"y":439}},"lines":[{"type":"throw","x1":548,"y1":86,"x2":468,"y2":248}],"batterBase":1}]};
+    }
     const kind = drill.kind;
     const twoOuts = group.outs === 2;
     const ground = kind === 'groundLeft' || kind === 'groundRight';
