@@ -428,6 +428,8 @@ html:has(.team-intro[open]) { overflow: hidden; }
   bottom: 4%;
   height: min(36vh, 38vw, 350px);
   aspect-ratio: 274 / 540;
+  transform-origin: right bottom;
+  transform: translate(0, -26%) scale(.72);
   pointer-events: none;
 }
 .intro-walker::before {
@@ -492,12 +494,11 @@ html:has(.team-intro[open]) { overflow: hidden; }
 .is-walking .intro-start { cursor: default; }
 .is-walking .intro-caption { opacity: 0; }
 .team-intro.is-walking { animation: intro-reveal 230ms ease-out var(--crossing-time) forwards; }
-.is-walking .intro-walker { animation: intro-cross var(--crossing-time) linear forwards; }
+.is-walking .intro-walker { animation: intro-cross var(--crossing-time) cubic-bezier(.36, .21, .76, .66) forwards; }
 .is-walking #intro-player { animation: intro-steps 390ms ease-in-out infinite; }
 
 @keyframes intro-cross {
-  from { transform: translateX(0); }
-  to { transform: translateX(calc(-100vw + var(--runner-inset) - 7vmin)); }
+  to { transform: translate(calc(-100vw + var(--runner-inset) - 75%), 0) scale(1.8); }
 }
 /* Each shoe takes a turn bearing the weight. Switch pivots only at a neutral pose. */
 @keyframes intro-steps {
