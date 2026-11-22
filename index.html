@@ -91,14 +91,14 @@ a { color: inherit; text-decoration: none; }
 .pill { font-size: 11px; color: var(--green); background: #e6ebf3; border: 1px solid #d3dbe7; border-radius: 100px; padding: 2px 7px; line-height: 1.4; font-weight: 700; white-space: nowrap; }
 .head-meta { color: var(--muted); font-size: 11px; font-weight: 650; font-variant-numeric: tabular-nums; min-width: 0; }
 .field-panel { overflow: hidden; }
-.field-wrap { position: relative; isolation: isolate; width: 100%; aspect-ratio: 1000/620; overflow: hidden; background: #122542; }
+.field-wrap { position: relative; isolation: isolate; width: 100%; aspect-ratio: 1000/620; overflow: hidden; background: #173d30; }
 #field { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; touch-action: none; }
 .field-hud, .field-key, .field-tag { position: absolute; pointer-events: none; z-index: 1; font-variant-numeric: tabular-nums; }
-.field-hud { top: 14px; left: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 7px; width: fit-content; max-width: calc(100% - 30px); color: #eef3fb; background: #0d192cd9; border: 1px solid #cbdaf135; border-radius: 5px; padding: 5px 9px; font-size: 11px; line-height: 1.25; font-weight: 700; }
-.field-key, .field-tag { bottom: 14px; font-size: 11px; line-height: 1.25; font-weight: 650; color: #e4ebf5; }
+.field-hud { top: 14px; left: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 7px; width: fit-content; max-width: calc(100% - 30px); color: #f6faef; background: #10291ed9; border: 1px solid #d9edcf35; border-radius: 5px; padding: 5px 9px; font-size: 11px; line-height: 1.25; font-weight: 700; }
+.field-key, .field-tag { bottom: 14px; font-size: 11px; line-height: 1.25; font-weight: 650; color: #f0f3e6; }
 .field-key { left: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .field-key > span, .field-tag > span { display: inline-flex; align-items: center; gap: 5px; }
-.field-tag { right: 15px; font-family: var(--display); font-size: 10px; letter-spacing: .1em; color: #c5cedc; }
+.field-tag { right: 15px; font-family: var(--display); font-size: 10px; letter-spacing: .1em; color: #c8d9c8; }
 .field-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 14px; min-height: 52px; }
 .tool, .icon-btn { min-height: 33px; border-radius: 5px; padding: 6px 9px; color: var(--muted); border: 1px solid transparent; }
 .tool[aria-pressed="true"], .tool.active { color: var(--green); background: #e5eaf1; border-color: #d1d9e4; }
@@ -182,20 +182,20 @@ a { color: inherit; text-decoration: none; }
 .field-panel .head-title { flex: 1; }
 .field-panel .head-title h2, .field-panel .icon-box { flex: none; }
 .field-panel .pill, .step-copy > strong, .step-copy > small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.field-hud .mini-inning { color: #fadbdf; }
-.hud-divider { display: block; width: 1px; height: 11px; background: #ccd8ea59; }
-.key-dot { display: inline-block; position: relative; width: 9px; height: 9px; border-radius: 50%; flex: none; border: 1px solid #d8e4f594; }
-.key-dot.fielder { background: #ccdaee; }
-.key-dot.runner { background: #d53348; }
-.key-dot.batter { background: #c7263b; border-radius: 0; clip-path: polygon(0 0, 100% 0, 100% 58%, 50% 100%, 0 58%); }
-.key-dot.ball { background: #fceaec; border-color: #f5cfd4; overflow: hidden; }
-.key-dot.ball::before, .key-dot.ball::after { content: ""; position: absolute; top: -1px; width: 6px; height: 9px; border: 1px dashed #c7394c; border-radius: 50%; }
+.field-hud .mini-inning { color: #fff4d6; }
+.hud-divider { display: block; width: 1px; height: 11px; background: #d9e7cf59; }
+.key-dot { display: inline-block; position: relative; width: 9px; height: 9px; border-radius: 50%; flex: none; border: 1px solid #f1f2db94; }
+.key-dot.fielder { background: #e8ebcf; }
+.key-dot.runner { background: #c56b43; }
+.key-dot.batter { background: #b76a36; border-radius: 0; clip-path: polygon(0 0, 100% 0, 100% 58%, 50% 100%, 0 58%); }
+.key-dot.ball { background: #fff6e7; border-color: #f1e4d3; overflow: hidden; }
+.key-dot.ball::before, .key-dot.ball::after { content: ""; position: absolute; top: -1px; width: 6px; height: 9px; border: 1px dashed #b96247; border-radius: 50%; }
 .key-dot.ball::before { left: -5px; }
 .key-dot.ball::after { right: -5px; }
-.field-key { background: #0e1e36b8; padding: 5px 8px; border: 1px solid #cbdaf122; border-radius: 4px; }
-.field-play { position: absolute; right: 12px; bottom: 10px; z-index: 2; display: inline-flex; align-items: center; gap: 5px; border-radius: 5px; padding: 5px 9px; font-weight: 650; font-size: 13px; color: #fceaec; background: #12233d; border: 1px solid #b9cae377; }
+.field-key { background: #123226b8; padding: 5px 8px; border: 1px solid #d9edcf22; border-radius: 4px; }
+.field-play { position: absolute; right: 12px; bottom: 10px; z-index: 2; display: inline-flex; align-items: center; gap: 5px; border-radius: 5px; padding: 5px 9px; font-weight: 650; font-size: 13px; color: #fff9e7; background: #16392e; border: 1px solid #c8dfbd77; }
 .field-play .icon { width: 14px; height: 14px; }
-.drill-step-hud { position: absolute; top: 12px; right: 12px; max-width: 52%; padding: 4px 8px; border-radius: 5px; background: #12233de8; color: #f2f6fd; font-size: 12px; line-height: 1.4; pointer-events: none; }
+.drill-step-hud { position: absolute; top: 12px; right: 12px; max-width: 52%; padding: 4px 8px; border-radius: 5px; background: #16392ee8; color: #fffcf0; font-size: 12px; line-height: 1.4; pointer-events: none; }
 @media (max-width: 610px) { .drill-step-hud { top: 6px; right: 5px; font-size: 10px; } }
 .history-tools { padding-left: 9px; border-left: 1px solid var(--line); }
 .step-entry { position: relative; min-width: 0; }
@@ -432,80 +432,80 @@ body.field-expanded { overflow: hidden; }
   <path id="park-fence" d="M 158 214 Q 245 102 389 60 L 450 43 Q 500 30 550 43 L 611 60 Q 755 102 842 214 L 887 282 L 593 564 Q 548 603 500 604 Q 452 603 407 564 L 113 282 Z"/>
   <clipPath id="park-field-clip"><use href="#park-fence"/></clipPath>
   <pattern id="park-grid" width="28" height="28" patternUnits="userSpaceOnUse">
-    <path d="M 28 0 H 0 V 28" fill="none" stroke="#a3b1c7" stroke-width=".75" opacity=".17"/>
-    <circle cx=".6" cy=".6" r=".85" fill="#9dadc6" opacity=".3"/>
+    <path d="M 28 0 H 0 V 28" fill="none" stroke="#acc3a7" stroke-width=".75" opacity=".17"/>
+    <circle cx=".6" cy=".6" r=".85" fill="#b1c2a1" opacity=".3"/>
   </pattern>
   <pattern id="park-grass" width="116" height="116" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
-    <rect width="116" height="116" fill="#304c75"/>
-    <rect width="58" height="116" fill="#3d5881"/>
-    <path d="M 1 0 V 116 M 57 0 V 116" stroke="#5f779c" stroke-width="1.2" opacity=".4"/>
+    <rect width="116" height="116" fill="#376e51"/>
+    <rect width="58" height="116" fill="#447a57"/>
+    <path d="M 1 0 V 116 M 57 0 V 116" stroke="#699467" stroke-width="1.2" opacity=".4"/>
   </pattern>
   <pattern id="park-grain" width="9" height="11" patternUnits="userSpaceOnUse">
     <path d="M 1 2 l .7 -.8 M 5 8 l 1.2 -.6" stroke="white" opacity=".1" fill="none" stroke-width=".7"/>
-    <path d="M 7 4 l .7 -.9 M 2 9 l 1 -.4" stroke="#101c2f" opacity=".16" fill="none" stroke-width=".7"/>
+    <path d="M 7 4 l .7 -.9 M 2 9 l 1 -.4" stroke="#132c1c" opacity=".16" fill="none" stroke-width=".7"/>
   </pattern>
   <pattern id="park-clay-grain" width="10" height="9" patternUnits="userSpaceOnUse">
-    <circle cx="1" cy="2" r=".55" fill="#7e2632" opacity=".34"/>
-    <circle cx="5" cy="6" r=".55" fill="#f29aa5" opacity=".45"/>
-    <circle cx="8" cy="3.5" r=".45" fill="#852c38" opacity=".35"/>
+    <circle cx="1" cy="2" r=".55" fill="#753f2f" opacity=".34"/>
+    <circle cx="5" cy="6" r=".55" fill="#f5ce97" opacity=".45"/>
+    <circle cx="8" cy="3.5" r=".45" fill="#7c4935" opacity=".35"/>
   </pattern>
   <path id="park-infield" d="M 499 557 L 347 405 C 365 322 425 263 500 263 C 575 263 635 322 653 405 L 501 557 Q 500 558 499 557 Z"/>
   <g id="park-lower-stand">
-    <path d="M 85 304 L 323 537 L 310 550 L 72 318 Z" fill="#20314a"/>
-    <path d="M 76 319 L 310 547 M 80 315 L 314 543 M 84 311 L 318 539" stroke="#5f779a" opacity=".53" stroke-width="1" fill="none"/>
-    <path d="M 115 342 l -9 10 M 158 384 l -9 10 M 201 426 l -9 10 M 244 468 l -9 10 M 287 510 l -9 10" stroke="#14253f" stroke-width="5"/>
+    <path d="M 85 304 L 323 537 L 310 550 L 72 318 Z" fill="#24463b"/>
+    <path d="M 76 319 L 310 547 M 80 315 L 314 543 M 84 311 L 318 539" stroke="#69907b" opacity=".53" stroke-width="1" fill="none"/>
+    <path d="M 115 342 l -9 10 M 158 384 l -9 10 M 201 426 l -9 10 M 244 468 l -9 10 M 287 510 l -9 10" stroke="#183b32" stroke-width="5"/>
   </g>
 </defs>
 <g aria-hidden="true" pointer-events="none">
-  <rect width="1000" height="620" fill="#172b48"/>
+  <rect width="1000" height="620" fill="#1c4337"/>
   <rect width="1000" height="620" fill="url(#park-grid)"/>
   <g fill="none" stroke-linejoin="round">
-    <use href="#park-fence" stroke="#0e1d33" stroke-width="65" opacity=".64"/>
-    <use href="#park-fence" stroke="#3e506b" stroke-width="50"/>
-    <use href="#park-fence" stroke="#253650" stroke-width="45"/>
-    <use href="#park-fence" stroke="#4b5e7a" stroke-width="35"/>
-    <use href="#park-fence" stroke="#24344c" stroke-width="33"/>
-    <use href="#park-fence" stroke="#576d8e" stroke-width="24"/>
-    <use href="#park-fence" stroke="#293b56" stroke-width="22"/>
-    <use href="#park-fence" stroke="#8094b1" stroke-width="12"/>
-    <use href="#park-fence" stroke="#1f304c" stroke-width="10"/>
+    <use href="#park-fence" stroke="#122f28" stroke-width="65" opacity=".64"/>
+    <use href="#park-fence" stroke="#426655" stroke-width="50"/>
+    <use href="#park-fence" stroke="#294c3f" stroke-width="45"/>
+    <use href="#park-fence" stroke="#527360" stroke-width="35"/>
+    <use href="#park-fence" stroke="#28483c" stroke-width="33"/>
+    <use href="#park-fence" stroke="#64816a" stroke-width="24"/>
+    <use href="#park-fence" stroke="#2d5140" stroke-width="22"/>
+    <use href="#park-fence" stroke="#96a78a" stroke-width="12"/>
+    <use href="#park-fence" stroke="#234736" stroke-width="10"/>
   </g>
   <use href="#park-lower-stand"/>
   <use href="#park-lower-stand" transform="translate(1000 0) scale(-1 1)"/>
   <g clip-path="url(#park-field-clip)">
     <rect width="1000" height="620" fill="url(#park-grass)"/>
-    <path d="M 500 538 L 101 139 L 0 220 L 0 620 L 1000 620 L 1000 220 L 899 139 Z" fill="#112543" opacity=".2"/>
-    <use href="#park-fence" fill="none" stroke="#ab4855" stroke-width="34" stroke-linejoin="round"/>
+    <path d="M 500 538 L 101 139 L 0 220 L 0 620 L 1000 620 L 1000 220 L 899 139 Z" fill="#163e33" opacity=".2"/>
+    <use href="#park-fence" fill="none" stroke="#a17152" stroke-width="34" stroke-linejoin="round"/>
     <use href="#park-fence" fill="none" stroke="url(#park-clay-grain)" stroke-width="34" stroke-linejoin="round"/>
-    <use href="#park-fence" fill="none" stroke="#df6a7a" stroke-width="3" stroke-linejoin="round"/>
+    <use href="#park-fence" fill="none" stroke="#d3b776" stroke-width="3" stroke-linejoin="round"/>
     <rect width="1000" height="620" fill="url(#park-grain)"/>
-    <use href="#park-infield" fill="#c35362"/>
+    <use href="#park-infield" fill="#b8825e"/>
     <use href="#park-infield" fill="url(#park-clay-grain)"/>
-    <path d="M 500 315 L 603 418 L 500 521 L 397 418 Z" fill="url(#park-grass)" stroke="#b54a59" stroke-width="2"/>
+    <path d="M 500 315 L 603 418 L 500 521 L 397 418 Z" fill="url(#park-grass)" stroke="#aa7755" stroke-width="2"/>
     <path d="M 500 315 L 603 418 L 500 521 L 397 418 Z" fill="url(#park-grain)"/>
-    <circle cx="500" cy="424" r="17" fill="#ce5e6d" stroke="#b34c59" stroke-width="1.6"/>
+    <circle cx="500" cy="424" r="17" fill="#c39469" stroke="#a97a56" stroke-width="1.6"/>
     <circle cx="500" cy="424" r="17" fill="url(#park-clay-grain)"/>
-    <rect x="496" y="421.5" width="8" height="2.2" rx=".4" fill="#f9d0d5"/>
-    <circle cx="500" cy="538" r="26" fill="#c35362"/>
+    <rect x="496" y="421.5" width="8" height="2.2" rx=".4" fill="#fff0ca"/>
+    <circle cx="500" cy="538" r="26" fill="#b8825e"/>
     <circle cx="500" cy="538" r="26" fill="url(#park-clay-grain)"/>
-    <path d="M 172 210 L 500 538 L 828 210" fill="none" stroke="#f9ccd2" stroke-width="2.2" stroke-linejoin="round"/>
-    <path d="M 557 486 L 614 429" fill="none" stroke="#f0b4bc" stroke-width="1.3"/>
-    <g fill="none" stroke="#f8c5cc" stroke-width="1.25">
+    <path d="M 172 210 L 500 538 L 828 210" fill="none" stroke="#f7edce" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M 557 486 L 614 429" fill="none" stroke="#eadcba" stroke-width="1.3"/>
+    <g fill="none" stroke="#f3e8ca" stroke-width="1.25">
       <path d="M 473 544 A 28 28 0 0 0 527 544" opacity=".72"/>
       <path d="M 485 528 h 8 v 16 h -8 Z M 507 528 h 8 v 16 h -8 Z M 495 545 v 9 h 10 v -9" opacity=".88"/>
       <path d="M 359 429 l -5 5 l 28 28 l 5 -5 M 641 429 l 5 5 l -28 28 l -5 -5" opacity=".78"/>
       <circle cx="406" cy="523" r="5" opacity=".74"/>
       <circle cx="594" cy="523" r="5" opacity=".74"/>
     </g>
-    <g fill="#fad3d8" stroke="#a85964" stroke-width=".65">
+    <g fill="#fff1ce" stroke="#a08561" stroke-width=".65">
       <path d="M 500 294 l 4 4 l -4 4 l -4 -4 Z M 620 414 l 4 4 l -4 4 l -4 -4 Z M 380 414 l 4 4 l -4 4 l -4 -4 Z"/>
       <path d="M 496.7 535.2 h 6.6 v 3.2 l -3.3 2.7 l -3.3 -2.7 Z"/>
     </g>
   </g>
-  <g stroke="#e94a5f" stroke-width="3.2" stroke-linecap="round">
+  <g stroke="#d9ae5a" stroke-width="3.2" stroke-linecap="round">
     <path d="M 176 214 l -8 -8 M 824 214 l 8 -8"/>
   </g>
-  <g font-family="Barlow Condensed, Arial Narrow, Arial, sans-serif" font-size="11" font-weight="bold" fill="#f5abb5" opacity=".72" text-anchor="middle" letter-spacing="1.5">
+  <g font-family="Barlow Condensed, Arial Narrow, Arial, sans-serif" font-size="11" font-weight="bold" fill="#f3dfad" opacity=".72" text-anchor="middle" letter-spacing="1.5">
     <text x="500" y="55">400</text>
     <text transform="translate(209 180) rotate(-44)">325</text>
     <text transform="translate(791 180) rotate(44)">325</text>
@@ -514,9 +514,9 @@ body.field-expanded { overflow: hidden; }
 
           <g id="routes"></g><g id="tokens"></g>
           <g id="cover-label" visibility="hidden" pointer-events="none" aria-hidden="true">
-            <path d="M0 -16v-9" stroke="#fbe2e5" stroke-width="2"/>
-            <rect x="-16" y="-47" width="32" height="22" rx="8" fill="#dde9fb" stroke="#1c304e" stroke-width="2"/>
-            <text x="0" y="-31" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#1c2b42">2B</text>
+            <path d="M0 -16v-9" stroke="#fff5de" stroke-width="2"/>
+            <rect x="-16" y="-47" width="32" height="22" rx="8" fill="#fcf6dc" stroke="#214936" stroke-width="2"/>
+            <text x="0" y="-31" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#203e2e">2B</text>
           </g>
         </svg>
         <div class="field-hud"><span class="mini-inning" id="inning-hud"></span><span class="hud-divider"></span><span id="outs-hud"></span></div>
@@ -1318,22 +1318,22 @@ body.field-expanded { overflow: hidden; }
     svg('title', {}, group).textContent = player.name;
     svg('circle', { r: radius + 6, fill: 'transparent' }, group);
     const ring = svg('circle', {
-      r: radius + 4, fill: 'none', stroke: '#8cb4f1', 'stroke-width': 2.7, visibility: 'hidden'
+      r: radius + 4, fill: 'none', stroke: '#ffe37e', 'stroke-width': 2.7, visibility: 'hidden'
     }, group);
     if (batter) {
       const plate = 'M -15 -17 H 15 Q 18 -17 18 -14 V 6 L 2 20 Q 0 22 -2 20 L -18 6 V -14 Q -18 -17 -15 -17 Z';
-      svg('path', { d: plate, transform: 'translate(0 3)', fill: '#0d192c', opacity: '.35' }, group);
-      svg('path', { d: plate, fill: '#9e1d2e', stroke: '#f6b6bf', 'stroke-width': 2.8 }, group);
+      svg('path', { d: plate, transform: 'translate(0 3)', fill: '#10291e', opacity: '.35' }, group);
+      svg('path', { d: plate, fill: '#91502a', stroke: '#ffe3ad', 'stroke-width': 2.8 }, group);
     } else {
-      svg('circle', { r: radius + 1, cy: 2.8, fill: '#0d192c', opacity: '.32' }, group);
+      svg('circle', { r: radius + 1, cy: 2.8, fill: '#10291e', opacity: '.32' }, group);
       svg('circle', {
-        r: radius, fill: runner ? '#c61930' : '#dde9fb',
-        stroke: runner ? '#f5adb7' : '#1c304e', 'stroke-width': ball ? 1.8 : 2.8
+        r: radius, fill: runner ? '#b94f26' : '#fcf6dc',
+        stroke: runner ? '#ffe1a3' : '#214936', 'stroke-width': ball ? 1.8 : 2.8
       }, group);
     }
     if (ball) {
       const seams = svg('g', {
-        fill: 'none', stroke: '#c82b40', 'stroke-width': 1.15,
+        fill: 'none', stroke: '#b84d3b', 'stroke-width': 1.15,
         'stroke-linecap': 'round', transform: 'rotate(-24)'
       }, group);
       svg('path', {
@@ -1345,7 +1345,7 @@ body.field-expanded { overflow: hidden; }
       }, seams);
     } else {
       svg('text', {
-        y: batter ? -1 : 1, fill: runner || batter ? '#fce6e9' : '#1c2b42', 'font-size': 18,
+        y: batter ? -1 : 1, fill: runner || batter ? '#fff7e3' : '#203e2e', 'font-size': 18,
         'font-family': 'Barlow, Arial, Microsoft JhengHei, sans-serif', 'font-weight': 800,
         'text-anchor': 'middle', 'dominant-baseline': 'middle', 'pointer-events': 'none'
       }, group).textContent = batter ? '打' : player.label;
@@ -1415,7 +1415,7 @@ body.field-expanded { overflow: hidden; }
     const head = Math.min(13, (length - startPad - endPad) * .45);
     const back = { x: end.x - dx * head, y: end.y - dy * head };
     const isThrow = line.type === 'throw';
-    const color = isThrow ? '#fbe3e6' : '#ee7686';
+    const color = isThrow ? '#fff7df' : '#ffcf65';
     const dash = isThrow ? '9 8' : 'none';
     const group = svg('g', { opacity: draft ? '.72' : '1', 'pointer-events': 'none' }, routes);
     if (index >= 0 && api.getMode() === 'erase') {
@@ -1423,17 +1423,17 @@ body.field-expanded { overflow: hidden; }
       group.setAttribute('tabindex', 0);
       group.setAttribute('role', 'button');
       group.setAttribute('aria-label', '刪除第 ' + (index + 1) + ' 條' + (isThrow ? '傳球線' : '跑位線'));
-      group.addEventListener('focus', () => { group.style.filter = 'drop-shadow(0 0 5px #acc9f5)'; });
+      group.addEventListener('focus', () => { group.style.filter = 'drop-shadow(0 0 5px #fff4a2)'; });
       group.addEventListener('blur', () => { group.style.filter = ''; });
       visibleLines.push({ index, start, end });
     }
     const path = 'M ' + start.x + ' ' + start.y + ' L ' + back.x + ' ' + back.y;
-    svg('path', { d: path, fill: 'none', stroke: '#1d2a3e', 'stroke-width': 6.3, opacity: '.65', 'stroke-dasharray': dash, 'stroke-linecap': 'round' }, group);
+    svg('path', { d: path, fill: 'none', stroke: '#203b2c', 'stroke-width': 6.3, opacity: '.65', 'stroke-dasharray': dash, 'stroke-linecap': 'round' }, group);
     svg('path', { d: path, fill: 'none', stroke: color, 'stroke-width': 3.5, 'stroke-dasharray': dash, 'stroke-linecap': 'round' }, group);
     svg('path', {
       d: 'M ' + end.x + ' ' + end.y + ' L ' + (back.x - dy * head * .5) + ' ' + (back.y + dx * head * .5)
         + ' L ' + (back.x + dy * head * .5) + ' ' + (back.y - dx * head * .5) + ' Z',
-      fill: color, stroke: '#263347', 'stroke-width': 1, 'stroke-linejoin': 'round'
+      fill: color, stroke: '#294432', 'stroke-width': 1, 'stroke-linejoin': 'round'
     }, group);
   }
 
@@ -1469,7 +1469,7 @@ body.field-expanded { overflow: hidden; }
     const end = gesture?.current || pending?.current;
     if (start && (mode === 'move' || mode === 'throw')) {
       if (end) drawLine({ type: mode, x1: start.x, y1: start.y, x2: end.x, y2: end.y }, positions, true);
-      svg('circle', { cx: start.x, cy: start.y, r: 6, fill: 'none', stroke: '#f297a3', 'stroke-width': 2 }, routes);
+      svg('circle', { cx: start.x, cy: start.y, r: 6, fill: 'none', stroke: '#ffe08a', 'stroke-width': 2 }, routes);
     }
   }
 
